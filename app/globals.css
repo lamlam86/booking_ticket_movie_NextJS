@@ -1,26 +1,324 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.header__navbar-item {
+  display: inline-block;
+  /* cho cac khoi cua header nam tren cung 1 dong */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.header__navbar-item-link {
+  text-decoration: none;
+  padding: 8px 16px;
+  background-color: transparent;
+  margin-left: 4px;
+  /* trong suot */
+  color: #fff;
+  border: 1px solid #00ff66;
+  /* vien xanh la */
+  border-radius: 4px;
+  /* bo goc */
+  transition: all 0.3s ease;
+  /* hiệu ứng mượt */
+  min-width: 200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.header__navbar-item-link:hover {
+  border-bottom: 2px solid #17C769;
+  /* gach xanh la khi hover */
+  background-color: rgba(0, 255, 102, 0.1);
+  /* nen xanh nhat khi hover */
+  color: #17C769;
+  /* chu xanh la */
 }
+
+.btn-login-nav {
+  background-color: #17C769;
+  color: #fff;
+  border: 1px solid #17C769;
+}
+
+/* Reset cơ bản để không còn khe hở viền trang */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+* { box-sizing: border-box; }
+
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: url('/assets/image/bg-signup.png.png') no-repeat center center fixed;
+  background-size: cover;
+  /*keo anh cho full man hinh*/
+  color: white;
+}
+
+/* ##################################################################################################### */
+
+.container {
+  max-width: 100%;
+  margin: 20px auto;
+  padding: 0 15px;
+  text-align: center;
+  padding-top: 100px;
+}
+
+.header {
+  position: fixed;
+  /* cố định header */
+  top: 0;
+  /* dính sát mép trên */
+  left: 0;
+  width: 100%;
+  /* chiếm full chiều ngang */
+  z-index: 1000;
+  /* nổi lên trên cùng (tránh bị card che) */
+  background: #09210e;
+  /*trong suot*/
+}
+
+.section-title-Now-Showing {
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.movie-card {
+  flex: 1 1 200px;
+  /* mỗi card tối thiểu 200px, tự giãn cho kín hàng */
+  max-width: 300px;
+  /* tùy chỉnh giới hạn */
+}
+
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-card img {
+  width: 100%;
+  height: auto;
+  /* giữ nguyên tỉ lệ ảnh */
+  object-fit: contain;
+  /* co ảnh vào khung, không cắt */
+}
+
+.movie-card h3 {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.section-title{
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #fff;
+  text-align: left;
+  padding-left: 295px;
+}
+
+/* ############################################# */
+
+.footer {
+  width: 100%;
+  background: #111;
+  color: #ccc;
+  padding: 40px 20px 20px;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-info,
+.footer-links,
+.footer-social {
+  flex: 1 1 250px;
+}
+
+.footer h3,
+.footer h4 {
+  color: #fff;
+  /* margin-bottom: 10px; */
+}
+
+.footer-links a,
+.footer-social a {
+  display: block;
+  color: #ccc;
+  margin: 5px 0;
+  text-decoration: none;
+}
+
+.footer-links a:hover,
+.footer-social a:hover {
+  color: #fff;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  border-top: 1px solid #333;
+  padding-top: 10px;
+  font-size: 14px;
+  color: #888;
+}
+
+/* ################################################ */
+
+.header__search {
+  display: flex;
+  align-items: center;
+}
+
+.header__search-input {
+  padding: 8px 12px;
+  /* Tăng padding cho đồng đều */
+  height: 40px;
+  /* Đặt chiều cao cố định */
+  border: 1px solid #ccc;
+  border-radius: 20px 0 0 20px;
+  outline: none;
+  box-sizing: border-box;
+  /* Đảm bảo padding không làm tăng kích thước */
+}
+
+.header__search-btn,
+.header__search-icon {
+  padding: 8px 12px;
+  /* Đồng bộ padding với input */
+  height: 40px;
+  /* Đồng bộ chiều cao */
+  border: 1px solid #ccc;
+  border-left: none;
+  background: white;
+  color: white;
+  border-radius: 0 20px 20px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  /* Đảm bảo padding không làm tăng kích thước */
+}
+
+.header__search-btn:hover,
+.header__search-icon:hover {
+  background: #00cc52;
+}
+
+/* Container chung cho header, giống với .container */
+.header__container {
+  max-width: 1200px;
+  /* bằng container của phim */
+  margin: 0 auto;
+  /* canh giữa */
+  padding: 0 15px;
+  /* thụt lề hai bên giống body */
+}
+
+/* Navbar bên trong container */
+.header__navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  /* bỏ padding ngang để không bị lệch */
+}
+
+/* Nhóm bên phải */
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Khung Swiper của banner */
+.banner-swiper {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  overflow: visible;           /* QUAN TRỌNG: cho phép nút tràn ra ngoài */
+}
+
+/* Ảnh banner */
+.banner-swiper .swiper-slide img {
+  width: 100%;
+  height: 400px;
+  object-fit: contain;           /* hoặc contain nếu bạn không muốn cắt ảnh */
+  border-radius: 8px;
+}
+
+/* Nút điều hướng – đặt ra ngoài khung ảnh */
+.banner-swiper .swiper-button-prev,
+.banner-swiper .swiper-button-next {
+  color: blue;
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+
+.banner-swiper .swiper-button-prev { left: -36px; }   /* đẩy ra ngoài bên trái */
+.banner-swiper .swiper-button-next { right: -36px; }  /* đẩy ra ngoài bên phải */
+
+/* Thu lại cho màn hình nhỏ */
+@media (max-width: 1024px) {
+  .banner-swiper .swiper-button-prev { left: -12px; }
+  .banner-swiper .swiper-button-next { right: -12px; }
+}
+
+
+
+/* ===== Khuyến mãi ===== */
+.promo-swiper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;      /* chừa chỗ cho nút điều hướng */
+  position: relative;
+  overflow: visible;    /* để nút có thể nằm hơi ngoài */
+}
+
+.promo-swiper .swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+
+.promo-swiper .swiper-slide img {
+  width: 100%;
+  max-width: 380px;     /* size ảnh tối đa cho 3 tấm/1 hàng */
+  aspect-ratio: 16 / 9; /* giữ tỉ lệ, tự tính chiều cao */
+  object-fit: cover;    /* hoặc 'contain' nếu không muốn cắt */
+  border-radius: 12px;
+}
+
+/* Nút điều hướng */
+.promo-swiper .swiper-button-prev,
+.promo-swiper .swiper-button-next {
+  color: #fff;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  z-index: 10;
+}
+
+.promo-swiper .swiper-button-prev { left: -16px; }
+.promo-swiper .swiper-button-next { right: -16px; }
+
+@media (max-width: 1024px) {
+  .promo-swiper { padding: 0 20px; }
+  .promo-swiper .swiper-button-prev { left: -8px; }
+  .promo-swiper .swiper-button-next { right: -8px; }
 }
