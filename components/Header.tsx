@@ -28,7 +28,7 @@ export default function Header() {
                 </a>
               </li>
               <li className="header__navbar-item">
-                <a className="header__navbar-item-link" href="/signin">
+                <a className="header__navbar-item-link" href="/signup">
                   Register
                 </a>
               </li>
