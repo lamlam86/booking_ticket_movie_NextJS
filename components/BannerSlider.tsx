@@ -1,11 +1,15 @@
 "use client";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import "swiper/css"; import "swiper/css/navigation"; import "swiper/css/pagination";
 
 export default function BannerSlider() {
+  const slides = [
+    { media: "/assets/images/banner-web.jpg", name: "Banner 1" },
+    { media: "/assets/images/web-banner-chung.jpg", name: "Banner 2" },
+    { media: "/assets/images/banner3.jpg", name: "Banner 3" },
+  ];
   return (
     <Swiper
       className="banner-swiper"
@@ -15,15 +19,18 @@ export default function BannerSlider() {
       autoplay={{ delay: 3000, disableOnInteraction: false }}
       loop
     >
-      <SwiperSlide>
-        <img src="/assets/image/banner-web.jpg" alt="Banner 1" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/assets/image/web-banner-chung.jpg" alt="Banner 2" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/assets/image/banner3.jpg" alt="Banner 3" />
-      </SwiperSlide>
+      {slides.map((s, i) => (
+        <SwiperSlide key={i}>
+          <Image
+            src={s.media}
+            alt={s.name}
+            width={1920}
+            height={600}
+            priority={i === 0}
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
+        </SwiperSlide>
+      ))}
     </Swiper>
   );
 }
