@@ -23,7 +23,7 @@ body {
 
 body {
   color: var(--text);
-  background: url('/assets/image/bg-signup.png.png') no-repeat center center fixed;
+  background: url('/assets/images/bg-signup.png') no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -33,9 +33,8 @@ body {
 .container {
   max-width: 1200px;
   margin: 20px auto;
-  padding: 0 15px;
+  padding: 0px 15px;
   text-align: center;
-  padding-top: 100px;
 }
 
 /* ================================
@@ -61,7 +60,7 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 20px 0;
+  padding: 12px 0;
 }
 
 /* reset UL mặc định + xếp ngang */
@@ -378,7 +377,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 120px 16px 48px;
+  padding: 48px 16px 48px;
   /* chừa header fixed */
 }
 
@@ -561,4 +560,835 @@ input.error {
   .login-box {
     padding: 20px;
   }
+}
+
+.header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.header__logo img {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+.header__logo:hover {
+  opacity: .9;
+}
+
+@media (max-width:640px) {
+  .header__logo img {
+    height: 32px;
+  }
+}
+
+/* ==== Theme tokens (đã dùng trước) ==== */
+:root {
+  --green: #17C769;
+  --green-2: #12b45c;
+}
+
+/* ==== Section spacing + heading giống Cinestar ==== */
+.section {
+  margin-top: 40px;
+}
+
+.section-heading {
+  margin: 24px 0 16px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  color: #fff;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-heading::after {
+  content: "";
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--green), rgba(23, 199, 105, .15));
+}
+
+/* ==== Movie Card với overlay CTA === */
+.movie-card {
+  max-width: 300px;
+}
+
+.movie-card__poster {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.movie-card__poster img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.movie-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .65), rgba(0, 0, 0, .15), transparent 60%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 14px;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.movie-card:hover .movie-card__overlay {
+  opacity: 1;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .2s ease, transform .05s;
+}
+
+.btn-primary:hover {
+  background: var(--green-2);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.movie-card__title {
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.movie-card__sub {
+  margin: 4px 0 0;
+  color: #cfd3d8;
+  font-size: 13px;
+}
+
+/* Badge tuổi góc trên trái */
+.badge-age {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #111;
+  color: #fff;
+  border: 2px solid var(--green);
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==== Swiper arrows đẩy ra ngoài một chút ==== */
+.banner-swiper .swiper-button-prev {
+  left: -36px;
+}
+
+.banner-swiper .swiper-button-next {
+  right: -36px;
+}
+
+.promo-swiper .swiper-button-prev {
+  left: -16px;
+}
+
+.promo-swiper .swiper-button-next {
+  right: -16px;
+}
+
+@media (max-width:1024px) {
+  .banner-swiper .swiper-button-prev {
+    left: -12px;
+  }
+
+  .banner-swiper .swiper-button-next {
+    right: -12px;
+  }
+
+  .promo-swiper .swiper-button-prev {
+    left: -8px;
+  }
+
+  .promo-swiper .swiper-button-next {
+    right: -8px;
+  }
+}
+
+/* ===== Benefits strip ===== */
+.benefits {
+  margin: 20px 0 10px;
+}
+
+.benefits__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.benefit {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.benefit img {
+  width: 40px;
+  height: 40px;
+}
+
+.benefit h4 {
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.benefit p {
+  margin: 2px 0 0;
+  color: #cfd3d8;
+  font-size: 13px;
+}
+
+@media (max-width:768px) {
+  .benefits__inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Header hamburger + Mobile sheet ===== */
+.header__hamburger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  gap: 4px;
+}
+
+.header__hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  margin: 4px auto;
+}
+
+@media (max-width:640px) {
+  .header__hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.mnav {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.mnav__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+}
+
+.mnav__sheet {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: min(86vw, 360px);
+  background: #0b1a12;
+  border-left: 1px solid rgba(255, 255, 255, .08);
+  padding: 16px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mnav__close {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.mnav__list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnav__list a {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.mnav__auth {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.mnav__auth a {
+  flex: 1;
+  text-align: center;
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 10px 0;
+}
+
+.mnav__auth a:first-child {
+  background: var(--green);
+}
+
+/* ===== Footer 4 cột ===== */
+.footer-col {
+  flex: 1 1 220px;
+}
+
+.footer-col h4 {
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.footer-col a {
+  display: block;
+  color: #ccc;
+  margin: 6px 0;
+  text-decoration: none;
+}
+
+.footer-col a:hover {
+  color: #fff;
+}
+
+/* ===== Swiper bullets (nhỏ, gọn) ===== */
+.swiper-pagination-bullet {
+  background: #cfead8;
+  opacity: .6;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--green);
+  opacity: 1;
+}
+
+:root {
+  --green: #17C769;
+  /* màu xanh team bạn */
+  --green-2: #12b45c;
+  --nav-dark: #0b1a12;
+  --pill-dark: #0f1a14;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--nav-dark);
+}
+
+.header__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 16px;
+}
+
+.header__navbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__logo img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+/* === CTA === */
+.header__cta {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform .05s, filter .2s;
+  color: #fff;
+}
+
+.btn-cta--solid {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.btn-cta--solid:hover {
+  filter: brightness(1.05);
+}
+
+.btn-cta--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .35);
+}
+
+.btn-cta--ghost:hover {
+  background: rgba(255, 255, 255, .08);
+}
+
+.icon-20 {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+}
+
+.icon-on-solid {
+  filter: invert(1) brightness(100%);
+}
+
+/* icon trắng trên nền xanh */
+.icon-on-ghost {
+  filter: invert(1);
+}
+
+/* icon trắng trên nền tối */
+
+/* === Right cluster === */
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* === Search pill === */
+.header__search {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 240px;
+  max-width: 680px;
+  height: 44px;
+  padding: 0 6px 0 16px;
+  margin-left: auto;
+  background: var(--pill-dark);
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 999px;
+}
+
+.header__search-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #fff;
+  font-size: 15px;
+}
+
+.header__search-input::placeholder {
+  color: #cfead8;
+  opacity: .85;
+}
+
+/* nút tròn trắng + icon kính lúp đen rõ ràng */
+.header__search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, .2);
+  cursor: pointer;
+}
+
+.icon-18 {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.icon-dark {
+  filter: brightness(0) saturate(100%);
+}
+
+/* ép icon thành đen */
+
+.header__navbar-list {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Responsive */
+@media (max-width:1024px) {
+  .header__cta {
+    display: none;
+  }
+
+  /* nhét CTA trong MobileMenu nếu cần */
+  .header__search {
+    max-width: 520px;
+  }
+}
+
+@media (max-width:640px) {
+  .header__logo img {
+    height: 32px;
+  }
+
+  .header__search {
+    height: 40px;
+  }
+}
+
+/* ======== MOVIE GRID — team xanh lá ======== */
+:root {
+  --brand-green: #17c769;
+  --brand-green-2: #00cc52;
+  --text-1: #eaf7ef;
+  --text-2: #bcd7c7;
+}
+
+.section {
+  padding: 28px 0 8px;
+}
+
+.section-heading {
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 800;
+  color: var(--text-1);
+  letter-spacing: .04em;
+  margin: 0 0 14px 0;
+}
+
+/* lưới poster */
+.mv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: clamp(16px, 2.4vw, 28px);
+  align-items: start;
+}
+
+/* card */
+.mv-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mv-card__poster {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 2/3;
+  background: #0c0f0d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+}
+
+.mv-card__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: translateZ(0);
+  transition: transform .35s ease;
+}
+
+.mv-card:hover .mv-card__poster img {
+  transform: scale(1.03);
+}
+
+/* age badge */
+.mv-card__age {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(9, 33, 14, .75);
+  border: 1px solid color-mix(in lch, var(--brand-green) 70%, #fff 0%);
+  color: #fff;
+  font-weight: 800;
+  font-size: .78rem;
+  backdrop-filter: blur(6px);
+}
+
+/* title */
+.mv-card__title {
+  color: var(--text-1);
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(14px, 1.6vw, 16px);
+  line-height: 1.15;
+  min-height: 1.6em;
+}
+
+/* button */
+.mv-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-inline: auto;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 800;
+  color: #fff;
+  height: 40px;
+  border: 1px solid color-mix(in lch, var(--brand-green) 65%, #fff 0%);
+  background: linear-gradient(180deg, rgba(23, 199, 105, .20), rgba(23, 199, 105, .08));
+  transition: background .2s, transform .12s, border-color .2s;
+}
+
+.mv-card__btn:hover {
+  background: var(--brand-green);
+  transform: translateY(-1px);
+}
+
+.mv-card__btn .icon-20 {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+/* responsive nhỏ hơn 360px vẫn giữ đẹp */
+@media (max-width: 360px) {
+  .mv-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== Booking (bk-*) – giữ palette xanh team bạn ===== */
+.bk-hero {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px
+}
+
+.bk-poster {
+  width: 140px;
+  height: 200px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, .12)
+}
+
+.bk-title {
+  margin: 0 0 6px 0;
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 800;
+  color: #fff
+}
+
+.bk-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px
+}
+
+.bk-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: #cfe7d8;
+  background: #0c1a13;
+  font-size: 13px
+}
+
+.bk-sub {
+  color: #9fb7a8;
+  margin: 0
+}
+
+@media (max-width:720px) {
+  .bk-hero {
+    grid-template-columns: 1fr
+  }
+
+  .bk-poster {
+    width: 120px;
+    height: 170px
+  }
+}
+
+.bk-card {
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 10px
+}
+
+.bk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap
+}
+
+.bk-hint {
+  color: #9fb7a8
+}
+
+.bk-grid {
+  display: grid;
+  gap: 10px
+}
+
+.bk-cols-3 {
+  grid-template-columns: repeat(3, 1fr)
+}
+
+.bk-cols-4 {
+  grid-template-columns: repeat(4, 1fr)
+}
+
+@media (max-width:800px) {
+  .bk-cols-3 {
+    grid-template-columns: repeat(2, 1fr)
+  }
+
+  .bk-cols-4 {
+    grid-template-columns: repeat(3, 1fr)
+  }
+}
+
+@media (max-width:480px) {
+  .bk-cols-3 {
+    grid-template-columns: 1fr
+  }
+
+  .bk-cols-4 {
+    grid-template-columns: repeat(2, 1fr)
+  }
+}
+
+.bk-btn {
+  border: 1px solid rgba(255, 255, 255, .15);
+  background: #0f1a14;
+  color: #e8f6ef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: center
+}
+
+.bk-btn:hover {
+  border-color: #3e6a4e;
+  background: #13251c
+}
+
+.bk-btn.is-active {
+  border-color: var(--green, #17c769);
+  background: var(--green, #17c769);
+  color: #fff
+}
+
+.bk-btn.primary {
+  border-color: var(--green, #17c769);
+  background: var(--green, #17c769);
+  color: #fff
+}
+
+.bk-btn.primary:disabled {
+  opacity: .5;
+  cursor: not-allowed
+}
+
+.bk-btn.ghost {
+  background: transparent
+}
+
+.bk-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap
+}
+
+.bk-summary {
+  background: rgba(255, 255, 255, .04);
+  border: 1px dashed rgba(255, 255, 255, .20);
+  padding: 12px;
+  border-radius: 12px;
+  color: #eaf6ef
+}
+
+.bk-summary.muted {
+  color: #9fb7a8
+}
+
+.bk-actions {
+  display: flex;
+  gap: 10px
 }

@@ -1,34 +1,36 @@
 "use client";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import "swiper/css"; import "swiper/css/navigation"; import "swiper/css/pagination";
+
+const promos = ["1", "2", "3", "4", "5", "6"].map(n => ({
+  media: `/assets/images/Khuyen mai ${n}.webp`,
+  name: `Khuyến mãi ${n}`
+}));
 
 export default function PromoSlider() {
-  const items = ["1", "2", "3", "4", "5", "6"]; // thêm bao nhiêu ảnh cũng được
-
   return (
     <Swiper
       className="promo-swiper"
       modules={[Navigation, Pagination, Autoplay]}
-      slidesPerView={3}        // 3 ảnh/1 hàng
-      slidesPerGroup={1}       // mỗi lần chuyển 1 ảnh
+      slidesPerView={3}
+      slidesPerGroup={1}
       spaceBetween={20}
       navigation
       pagination={{ clickable: true }}
-      autoplay={{ delay: 3000, disableOnInteraction: false }} // tự chạy vài giây
+      autoplay={{ delay: 3500, disableOnInteraction: false }}
       loop
       speed={600}
       breakpoints={{
-        0:   { slidesPerView: 1, slidesPerGroup: 1 },
-        640: { slidesPerView: 2, slidesPerGroup: 1 },
-        1024:{ slidesPerView: 3, slidesPerGroup: 1 },
+        0: { slidesPerView: 1 },
+        640: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 },
       }}
     >
-      {items.map((n) => (
-        <SwiperSlide key={n}>
-          <img src={`/assets/image/Khuyen mai ${n}.webp`} alt={`Khuyến mãi ${n}`} />
+      {promos.map((p, i) => (
+        <SwiperSlide key={i}>
+          <Image src={p.media} alt={p.name} width={380} height={214} sizes="(max-width: 768px) 90vw, 380px" />
         </SwiperSlide>
       ))}
     </Swiper>
