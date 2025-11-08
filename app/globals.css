@@ -107,47 +107,6 @@ body {
   border: 1px solid var(--green);
 }
 
-/* Search co giãn hợp lý */
-.header__search {
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  justify-content: center;
-  min-width: 240px;
-}
-
-.header__search-input {
-  width: clamp(220px, 40vw, 520px);
-  height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--gray-1);
-  border-radius: 20px 0 0 20px;
-  outline: none;
-}
-
-.header__search-btn,
-.header__search-icon {
-  height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--gray-1);
-  border-left: none;
-  background: #fff;
-  color: #fff;
-  border-radius: 0 20px 20px 0;
-  cursor: pointer;
-}
-
-.header__search-btn:hover,
-.header__search-icon:hover {
-  background: #00cc52;
-}
-
-/* Responsive header */
-@media (max-width:992px) {
-  .header__search-input {
-    width: clamp(200px, 45vw, 380px);
-  }
-}
 
 @media (max-width:640px) {
   .header__navbar {
@@ -160,12 +119,6 @@ body {
 
   .header__navbar-list {
     order: 2;
-  }
-
-  .header__search {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
   }
 }
 
@@ -186,33 +139,10 @@ body {
   border-radius: 8px;
 }
 
-.banner-swiper .swiper-button-prev,
-.banner-swiper .swiper-button-next {
-  color: blue;
-  width: 40px;
-  height: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-}
-
 .banner-swiper .swiper-button-prev {
   left: -36px;
 }
 
-.banner-swiper .swiper-button-next {
-  right: -36px;
-}
-
-@media (max-width:1024px) {
-  .banner-swiper .swiper-button-prev {
-    left: -12px;
-  }
-
-  .banner-swiper .swiper-button-next {
-    right: -12px;
-  }
-}
 
 /* ================================
    PROMO SWIPER
@@ -237,39 +167,6 @@ body {
   object-fit: cover;
   border-radius: 12px;
 }
-
-.promo-swiper .swiper-button-prev,
-.promo-swiper .swiper-button-next {
-  color: #fff;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  z-index: 10;
-}
-
-.promo-swiper .swiper-button-prev {
-  left: -16px;
-}
-
-.promo-swiper .swiper-button-next {
-  right: -16px;
-}
-
-@media (max-width:1024px) {
-  .promo-swiper {
-    padding: 0 20px;
-  }
-
-  .promo-swiper .swiper-button-prev {
-    left: -8px;
-  }
-
-  .promo-swiper .swiper-button-next {
-    right: -8px;
-  }
-}
-
 /* ================================
    MOVIES GRID + TITLES
 ================================== */
@@ -703,40 +600,8 @@ input.error {
   justify-content: center;
 }
 
-/* ==== Swiper arrows đẩy ra ngoài một chút ==== */
-.banner-swiper .swiper-button-prev {
-  left: -36px;
-}
 
-.banner-swiper .swiper-button-next {
-  right: -36px;
-}
 
-.promo-swiper .swiper-button-prev {
-  left: -16px;
-}
-
-.promo-swiper .swiper-button-next {
-  right: -16px;
-}
-
-@media (max-width:1024px) {
-  .banner-swiper .swiper-button-prev {
-    left: -12px;
-  }
-
-  .banner-swiper .swiper-button-next {
-    right: -12px;
-  }
-
-  .promo-swiper .swiper-button-prev {
-    left: -8px;
-  }
-
-  .promo-swiper .swiper-button-next {
-    right: -8px;
-  }
-}
 
 /* ===== Benefits strip ===== */
 .benefits {
@@ -970,25 +835,6 @@ input.error {
   transition: transform .05s, filter .2s;
   color: #fff;
 }
-
-.btn-cta--solid {
-  background: var(--green);
-  border-color: var(--green);
-}
-
-.btn-cta--solid:hover {
-  filter: brightness(1.05);
-}
-
-.btn-cta--ghost {
-  background: transparent;
-  border-color: rgba(255, 255, 255, .35);
-}
-
-.btn-cta--ghost:hover {
-  background: rgba(255, 255, 255, .08);
-}
-
 .icon-20 {
   width: 20px;
   height: 20px;
@@ -1030,35 +876,6 @@ input.error {
   border-radius: 999px;
 }
 
-.header__search-input {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  color: #fff;
-  font-size: 15px;
-}
-
-.header__search-input::placeholder {
-  color: #cfead8;
-  opacity: .85;
-}
-
-/* nút tròn trắng + icon kính lúp đen rõ ràng */
-.header__search-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid rgba(255, 255, 255, .2);
-  cursor: pointer;
-}
-
 .icon-18 {
   width: 18px;
   height: 18px;
@@ -1084,20 +901,11 @@ input.error {
   .header__cta {
     display: none;
   }
-
-  /* nhét CTA trong MobileMenu nếu cần */
-  .header__search {
-    max-width: 520px;
-  }
 }
 
 @media (max-width:640px) {
   .header__logo img {
     height: 32px;
-  }
-
-  .header__search {
-    height: 40px;
   }
 }
 
@@ -1391,4 +1199,283 @@ input.error {
 .bk-actions {
   display: flex;
   gap: 10px
+}
+
+/* ===== Đồng bộ nút (CTA + Login/Register + Search) ===== */
+:root{
+  --brand: var(--primary-green, #17c769);
+  --brand-dark: var(--primary-green-dark, #12b45c);
+  --ink: #0b140f;
+  --tx: #fff;
+  --tx-dim: rgba(255,255,255,.7);
+  --hd-line: rgba(255,255,255,.10);
+}
+
+/* Tất cả nút 40px, pill, transition giống nhau */
+.btn-cta,
+.header__navbar-item-link,
+.header__search-btn{
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: .01em;
+  transition: transform .05s ease, background .25s ease, border-color .25s ease, color .25s ease, box-shadow .25s ease;
+}
+.btn-cta:focus-visible,
+.header__navbar-item-link:focus-visible,
+.header__search-btn:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(23,199,105,.18);
+}
+
+/* CTA variants */
+.btn-cta--solid{
+  background: linear-gradient(180deg, var(--brand), var(--brand-dark));
+  color: var(--tx);
+  border-color: rgba(23,199,105,.45);
+}
+.btn-cta--solid:hover{  background: rgba(23,199,105,.12);}
+
+
+/* Auth buttons: base = outline, login = filled */
+.header__navbar-item-link{
+  color: var(--tx);
+  border-color: rgba(23,199,105,.40);
+  background: transparent;
+}
+.header__navbar-item-link:hover{
+  background: rgba(23,199,105,.12);
+  border-color: var(--brand);
+}
+.header__navbar-item-link.btn-login-nav{
+  background: linear-gradient(180deg, var(--brand), var(--brand-dark));
+  border-color: transparent;
+  color: var(--ink);
+}
+.header__navbar-item-link.btn-login-nav:hover{
+  filter: saturate(110%);
+}
+
+
+
+.header__search-btn{
+  width: 44px;
+  background: #0c1711;
+  border: 1px solid var(--hd-line);
+  border-left: none;
+}
+.header__search-btn:hover{ background: #0f1d15; }
+.icon{ width: 18px; height: 18px; filter: brightness(0) invert(1); }
+
+/* ===== Sub-nav dưới header ===== */
+.header__subnav{
+  background: #0f1a14;               /* đồng bộ nền xanh đậm */
+  border-top: 1px solid var(--hd-line);
+  border-bottom: 1px solid var(--hd-line);
+}
+.header__subnav-inner{
+  padding: 8px 0;
+  overflow-x: auto; -webkit-overflow-scrolling: touch; /* trượt ngang trên mobile */
+}
+.header__subnav-list{
+  display: flex; align-items: center; gap: 28px;
+  list-style: none; margin: 0; padding: 0 16px; white-space: nowrap;
+}
+.header__subnav-link{
+  display: inline-flex; align-items: center;
+  padding: 6px 0;
+  color: var(--tx-dim);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.header__subnav-link:hover{
+  color: var(--tx);
+  border-color: var(--brand);        /* gạch chân xanh */
+}
+
+/* Giữ 1 hàng trên desktop, chỉ wrap khi thật hẹp */
+@media (max-width: 980px){
+  .header__navbar{ flex-wrap: wrap; gap: 12px; }
+  .header__right{ width: 100%; }
+  .header__search{ order: 3; width: 100%; }
+}
+
+/* search pill (container) – giữ cho chắc đẹp */
+.header__search{
+  display:flex; align-items:center; gap:8px;
+  height:40px; padding:0 0px 0 14px;
+  background: var(--pill-bg, #0f1a14);
+  border: 1px solid var(--line, rgba(255,255,255,.12));
+  border-radius:999px;
+}
+
+/* === input đẹp, đồng bộ === */
+.header__search-input{
+  appearance:none; -webkit-appearance:none;
+  flex:1 1 auto; min-width:0; height:100%;
+  background:transparent; border:0; outline:0;
+
+  color: var(--tx, #fff);
+  font-size:15px; line-height:1;
+  letter-spacing:.2px;
+  caret-color: var(--brand, #17c769);
+
+  /* render chữ mịn */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.header__search-input::placeholder{
+  color: var(--tx-dim, rgba(255,255,255,.72));
+  opacity:.95;
+}
+
+/* Ẩn nút clear/nội thất mặc định của input[type=search] (Safari/Chrome) */
+.header__search-input::-webkit-search-decoration,
+.header__search-input::-webkit-search-cancel-button,
+.header__search-input::-webkit-search-results-button,
+.header__search-input::-webkit-search-results-decoration{
+  -webkit-appearance:none; appearance:none; display:none;
+}
+
+/* Autofill (Chrome) – giữ nền trong suốt và chữ trắng */
+.header__search-input:-webkit-autofill,
+.header__search-input:-webkit-autofill:hover,
+.header__search-input:-webkit-autofill:focus{
+  -webkit-text-fill-color: var(--tx, #fff);
+  transition: background-color 9999s ease-in-out 0s;
+  box-shadow: 0 0 0px 1000px transparent inset;
+}
+
+/* Mobile tinh chỉnh nhẹ */
+@media (max-width:640px){
+  .header__search{ height:38px; }
+  .header__search-input{ font-size:14px; }
+}
+
+/* Khung bao banner – cắt sạch mọi thứ tràn */
+.banner-wrap{
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;                /* nổi hơn các slider khác nếu chúng để overflow:visible */
+}
+
+/* Swiper của banner luôn ẩn phần tràn */
+.banner-wrap .swiper{
+  overflow: hidden;          /* QUAN TRỌNG: cắt slide thừa, không lộ poster bên cạnh */
+}
+
+/* Mỗi slide của banner giữ tỉ lệ */
+.banner-slide{
+  position: relative;
+  aspect-ratio: 16 / 6;      /* tuỳ banner (16/6 ~ 16/5). Muốn cao hơn thì giảm mẫu, vd 16/7 */
+}
+
+/* Ảnh điền kín khung */
+.banner-img{
+  object-fit: cover;         /* lấp đầy, không hở mép */
+  object-position: center;
+  border-radius: 12px;
+}
+
+/* Nút prev/next nằm trong khung, không cần overflow:visible */
+.banner-wrap .swiper-button-prev,
+.banner-wrap .swiper-button-next{
+  color: #17c769;
+}
+.banner-wrap .swiper-button-prev{ left: 12px; }
+.banner-wrap .swiper-button-next{ right: 12px; }
+
+/* Dots */
+.banner-wrap .swiper-pagination-bullet{
+  background: rgba(255,255,255,.5);
+  opacity: 1;
+}
+.banner-wrap .swiper-pagination-bullet-active{
+  background: #17c769;
+}
+
+/* Khoảng cách để slider khác không chồng lên banner */
+.section.banner-section,
+.banner-wrap{ margin-bottom: 24px; }
+
+/* Nếu các slider khác (promo/now-showing) đang dùng overflow:visible để đẩy nút ra ngoài,
+   hãy giới hạn phạm vi để không đè lên banner: */
+.promo-swiper .swiper,
+.movies-swiper .swiper{
+  overflow: visible;          /* nếu bạn cần hiệu ứng nhô ra */
+}
+.promo-swiper,
+.movies-swiper{
+  position: relative;
+  z-index: 0;                 /* thấp hơn banner để không lộ qua */
+  margin-top: 8px;
+}
+
+/* ================== PROMO (Khuyến mãi) ================== */
+.promo-swiper{
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.promo-swiper .swiper{
+  overflow: hidden;                 /* cắt slide thừa, hết lộ/tràn */
+  padding: 2px 0 28px;              /* chừa chỗ cho dots */
+}
+
+.promo-swiper .swiper-slide{
+  position: relative;
+  aspect-ratio: 16 / 9;             /* đồng kích thước các banner promo */
+  border-radius: 12px;
+}
+
+.promo-swiper .swiper-slide img{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                 /* lấp đầy, không hở mép */
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+}
+
+/* Nút điều hướng trong khung – đồng bộ xanh */
+.promo-swiper .swiper-button-prev,
+.promo-swiper .swiper-button-next{
+  color: var(--brand, #17c769);
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+}
+.promo-swiper .swiper-button-prev{ left: 8px; }
+.promo-swiper .swiper-button-next{ right: 8px; }
+
+/* Dots */
+.promo-swiper .swiper-pagination-bullets{
+  bottom: 0 !important;
+}
+.promo-swiper .swiper-pagination-bullet{
+  background: rgba(255,255,255,.55);
+  opacity: 1;
+}
+.promo-swiper .swiper-pagination-bullet-active{
+  background: var(--brand, #17c769);
+}
+
+/* Mobile: nút nhỏ lại */
+@media (max-width:640px){
+  .promo-swiper .swiper-button-prev,
+  .promo-swiper .swiper-button-next{
+    width: 34px; height: 34px;
+  }
 }
