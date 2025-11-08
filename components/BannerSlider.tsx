@@ -2,7 +2,9 @@
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import "swiper/css"; import "swiper/css/navigation"; import "swiper/css/pagination";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 export default function BannerSlider() {
   const slides = [
@@ -10,27 +12,34 @@ export default function BannerSlider() {
     { media: "/assets/images/web-banner-chung.jpg", name: "Banner 2" },
     { media: "/assets/images/banner3.jpg", name: "Banner 3" },
   ];
+
   return (
-    <Swiper
-      className="banner-swiper"
-      modules={[Navigation, Pagination, Autoplay]}
-      navigation
-      pagination={{ clickable: true }}
-      autoplay={{ delay: 3000, disableOnInteraction: false }}
-      loop
-    >
-      {slides.map((s, i) => (
-        <SwiperSlide key={i}>
-          <Image
-            src={s.media}
-            alt={s.name}
-            width={1920}
-            height={600}
-            priority={i === 0}
-            sizes="(max-width: 768px) 100vw, 1200px"
-          />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+    <div className="banner-wrap">
+      <Swiper
+        className="banner-swiper"
+        modules={[Navigation, Pagination, Autoplay]}
+        slidesPerView={1}
+        centeredSlides={false}
+        spaceBetween={0}
+        loop
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+      >
+        {slides.map((s, i) => (
+          <SwiperSlide key={i} className="banner-slide">
+            {/* Fill để ảnh bám khung, không vượt ra ngoài */}
+            <Image
+              src={s.media}
+              alt={s.name}
+              fill
+              priority={i === 0}
+              sizes="(max-width: 1200px) 100vw, 1200px"
+              className="banner-img"
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
   );
 }
