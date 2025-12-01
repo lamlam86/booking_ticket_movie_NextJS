@@ -13,6 +13,43 @@ const POSTER_POOL = [
   '/assets/images/phim6.png',
 ];
 
+const NAV_LINKS = [
+  { label: 'Tổng quan', badge: 'Live' },
+  { label: 'Suất chiếu', badge: null },
+  { label: 'Combo', badge: 'Hot' },
+  { label: 'Khuyến mãi', badge: null },
+  { label: 'Thành viên', badge: null },
+  { label: 'Báo cáo', badge: null },
+];
+
+const QUICK_ACTIONS = [
+  { label: 'Tạo suất chiếu', icon: '🎞' },
+  { label: 'Đăng phim mới', icon: '🎬' },
+  { label: 'Chiến dịch vé', icon: '🚀' },
+  { label: 'Khuyến mãi', icon: '💳' },
+];
+
+const UPCOMING_PREMIERES = [
+  { title: 'Cyber Ninja', date: '12/12', branches: 8 },
+  { title: 'Eclipse Love', date: '18/12', branches: 5 },
+  { title: 'Ocean Heart', date: '21/12', branches: 6 },
+];
+
+const PERFORMANCE_CHART = [420, 610, 530, 710, 680, 760, 820];
+
+const BUILD_LINE_POINTS = (values: number[]) => {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  return values
+    .map((value, index) => {
+      const x = (index / (values.length - 1 || 1)) * 100;
+      const normalized = max === min ? 0.5 : (value - min) / (max - min);
+      const y = 100 - normalized * 80 - 10; // giữ trong khoảng 10-90
+      return `${x},${y}`;
+    })
+    .join(' ');
+};
+
 type MovieStatus = 'nowShowing' | 'comingSoon' | 'draft';
 
 type Movie = {
@@ -168,6 +205,13 @@ export default function AdminMoviesPage() {
     ];
   }, [movies]);
 
+  const topMovies = useMemo(() => {
+    return [...movies]
+      .filter(m => m.status === 'nowShowing')
+      .sort((a, b) => b.soldTickets - a.soldTickets)
+      .slice(0, 4);
+  }, [movies]);
+
   const filterOptions: { id: 'all' | MovieStatus; label: string }[] = [
     { id: 'all', label: 'Tất cả' },
     { id: 'nowShowing', label: 'Đang chiếu' },
@@ -228,224 +272,348 @@ export default function AdminMoviesPage() {
       <Header />
 
       <main className="admin-page">
-        <div className="admin-panel">
-          <header className="admin-headline">
-            <div>
-              <p className="admin-eyebrow">Dashboard nội bộ</p>
-              <h1>Quản lý phim</h1>
-            </div>
-            <span className="badge badge--highlight">Realtime mock</span>
-          </header>
-
-          <section className="admin-stats">
-            {stats.map(stat => (
-              <article key={stat.label} className="admin-stat-card">
-                <p className="admin-stat-label">{stat.label}</p>
-                <p className="admin-stat-value">{stat.value}</p>
-                <p className="admin-stat-sub">{stat.subText}</p>
-              </article>
-            ))}
-          </section>
-
-          <section className="admin-toolbar">
-            <div className="admin-toolbar-block">
-              <label htmlFor="movie-search">Tìm kiếm</label>
-              <input
-                id="movie-search"
-                className="admin-input"
-                placeholder="Nhập tên phim..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
+        <div className="admin-shell">
+          <aside className="admin-sidebar">
+            <div className="admin-sidebar__brand">
+              <span className="admin-logo">CINE CRM</span>
+              <p>Điều phối lịch chiếu toàn hệ thống.</p>
             </div>
 
-            <div className="admin-toolbar-block">
-              <span>Trạng thái</span>
-              <div className="admin-filters">
-                {filterOptions.map(option => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={`admin-filter-btn${filter === option.id ? ' admin-filter-btn--active' : ''}`}
-                    onClick={() => setFilter(option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+            <nav className="admin-nav">
+              {NAV_LINKS.map(link => (
+                <button key={link.label} className="admin-nav__item" type="button">
+                  <span>{link.label}</span>
+                  {link.badge && <span className="admin-nav__badge">{link.badge}</span>}
+                </button>
+              ))}
+            </nav>
+
+            <div className="admin-sidebar__card">
+              <p className="admin-sidebar__label">Suất chiếu hoạt động</p>
+              <h3>128</h3>
+              <p className="admin-sidebar__muted">+12% so với tuần trước</p>
+            </div>
+          </aside>
+
+          <section className="admin-main">
+            <header className="admin-topbar">
+              <div>
+                <p className="admin-eyebrow">Dashboard realtime</p>
+                <h1>Quản trị phim & chiến dịch</h1>
               </div>
-            </div>
-          </section>
-
-          {flash && (
-            <div className={`admin-alert admin-alert--${flash.type}`}>
-              {flash.message}
-            </div>
-          )}
-
-          <section className="admin-form-section">
-            <h2>Thêm phim mới</h2>
-            <form className="admin-form" onSubmit={handleSubmit}>
-              <div className="admin-form-grid">
-                <label>
-                  Tiêu đề
+              <div className="admin-topbar__actions">
+                <div className="admin-search">
                   <input
-                    className="admin-input"
-                    value={form.title}
-                    onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Nhập tên phim"
+                    type="search"
+                    placeholder="Tìm nhanh phim hoặc suất chiếu"
+                    value={search}
+                    onChange={event => setSearch(event.target.value)}
                   />
-                </label>
-
-                <label>
-                  Trạng thái
-                  <select
-                    className="admin-input"
-                    value={form.status}
-                    onChange={e => setForm(prev => ({ ...prev, status: e.target.value as MovieStatus }))}
-                  >
-                    <option value="nowShowing">Đang chiếu</option>
-                    <option value="comingSoon">Sắp chiếu</option>
-                    <option value="draft">Nháp</option>
-                  </select>
-                </label>
-
-                <label>
-                  Ngày phát hành
-                  <input
-                    className="admin-input"
-                    type="date"
-                    value={form.releaseDate}
-                    onChange={e => setForm(prev => ({ ...prev, releaseDate: e.target.value }))}
-                  />
-                </label>
-
-                <label>
-                  Thời lượng (phút)
-                  <input
-                    className="admin-input"
-                    type="number"
-                    min={40}
-                    max={240}
-                    value={form.duration}
-                    onChange={e => setForm(prev => ({ ...prev, duration: Number(e.target.value) }))}
-                  />
-                </label>
-
-                <label>
-                  Độ tuổi
-                  <input
-                    className="admin-input"
-                    value={form.rating}
-                    onChange={e => setForm(prev => ({ ...prev, rating: e.target.value }))}
-                    placeholder="P / C13 / C16 / C18"
-                  />
-                </label>
-
-                <label>
-                  Poster (URL)
-                  <select
-                    className="admin-input"
-                    value={form.poster}
-                    onChange={e => setForm(prev => ({ ...prev, poster: e.target.value }))}
-                  >
-                    {POSTER_POOL.map(src => (
-                      <option key={src} value={src}>
-                        {src.split('/').pop()}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <span role="img" aria-hidden>
+                    🔍
+                  </span>
+                </div>
+                <button className="admin-pill" type="button">
+                  7 ngày qua
+                </button>
+                <button className="admin-pill admin-pill--primary" type="button">
+                  + Báo cáo nhanh
+                </button>
               </div>
+            </header>
 
-              <button type="submit" className="admin-submit-btn">
-                Lưu phim
-              </button>
-            </form>
-          </section>
+            {flash && <div className={`admin-alert admin-alert--${flash.type}`}>{flash.message}</div>}
 
-          <section className="admin-table-section">
-            <div className="admin-table-head">
-              <h2>Danh sách phim</h2>
-              <p>{filteredMovies.length} phim phù hợp bộ lọc</p>
-            </div>
-
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Phim</th>
-                    <th>Trạng thái</th>
-                    <th>Lịch</th>
-                    <th>Vé đã bán</th>
-                    <th>Thiết lập</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredMovies.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="admin-table-empty">
-                        Không có phim nào khớp bộ lọc.
-                      </td>
-                    </tr>
-                  )}
-
-                  {filteredMovies.map(movie => (
-                    <tr key={movie.id}>
-                      <td>
-                        <div className="admin-movie">
-                          <img src={movie.poster} alt={movie.title} />
-                          <div>
-                            <p className="admin-movie-title">{movie.title}</p>
-                            <p className="admin-movie-meta">
-                              {movie.duration} phút • {movie.rating}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`status-badge status-badge--${movie.status}`}>
-                          {STATUS_LABELS[movie.status]}
-                        </span>
-                      </td>
-                      <td>
-                        <p className="admin-movie-meta">{movie.releaseDate || 'Chưa cập nhật'}</p>
-                        <p className="admin-movie-meta">{movie.totalShows} suất chiếu</p>
-                      </td>
-                      <td>
-                        <p className="admin-movie-meta">{movie.soldTickets.toLocaleString('vi-VN')} vé</p>
-                      </td>
-                      <td>
-                        <div className="admin-actions">
-                          <select
-                            className="admin-input admin-input--dense"
-                            value={movie.status}
-                            onChange={e => handleStatusChange(movie.id, e.target.value as MovieStatus)}
-                          >
-                            <option value="nowShowing">Đang chiếu</option>
-                            <option value="comingSoon">Sắp chiếu</option>
-                            <option value="draft">Nháp</option>
-                          </select>
-                          <button
-                            type="button"
-                            className={`admin-chip${movie.isFeatured ? ' admin-chip--active' : ''}`}
-                            onClick={() => handleFeatureToggle(movie.id)}
-                          >
-                            {movie.isFeatured ? 'Đang nổi bật' : 'Đánh dấu nổi bật'}
-                          </button>
-                          <button
-                            type="button"
-                            className="admin-chip admin-chip--danger"
-                            onClick={() => handleDelete(movie.id)}
-                          >
-                            Xóa
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+            <section className="admin-hero">
+              <div className="admin-hero__primary">
+                <div>
+                  <p>Doanh thu vé dự kiến</p>
+                  <h2>215.5 triệu đ</h2>
+                  <p className="admin-hero__muted">57 suất chiếu đang mở bán</p>
+                </div>
+                <div className="admin-hero__trend">
+                  <span>+18% tuần này</span>
+                  <small>So với cùng kỳ</small>
+                </div>
+              </div>
+              <div className="admin-hero__actions">
+                <div className="admin-quick-actions">
+                  {QUICK_ACTIONS.map(action => (
+                    <button key={action.label} type="button">
+                      <span>{action.icon}</span>
+                      {action.label}
+                    </button>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="admin-stats admin-stats--grid">
+              {stats.map(stat => (
+                <article key={stat.label} className="admin-stat-card">
+                  <p className="admin-stat-label">{stat.label}</p>
+                  <p className="admin-stat-value">{stat.value}</p>
+                  <p className="admin-stat-sub">{stat.subText}</p>
+                </article>
+              ))}
+            </section>
+
+            <section className="admin-analytics-grid">
+              <article className="admin-chart-card">
+                <header>
+                  <div>
+                    <p>Hiệu suất bán vé</p>
+                    <h3>820 vé / tuần</h3>
+                  </div>
+                  <span className="admin-pill admin-pill--ghost">Realtime</span>
+                </header>
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Ticket performance chart">
+                  <defs>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#c084fc" />
+                      <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
+                  </defs>
+                  <polyline
+                    fill="none"
+                    stroke="url(#lineGradient)"
+                    strokeWidth="2"
+                    points={BUILD_LINE_POINTS(PERFORMANCE_CHART)}
+                  />
+                  <polyline
+                    fill="rgba(192, 132, 252, 0.15)"
+                    stroke="transparent"
+                    points={`${BUILD_LINE_POINTS(PERFORMANCE_CHART)} 100,100 0,100`}
+                  />
+                </svg>
+              </article>
+
+              <article className="admin-chart-card admin-chart-card--list">
+                <header>
+                  <p>Phim bán chạy</p>
+                  <span className="admin-pill admin-pill--ghost">Top 4</span>
+                </header>
+                <ul>
+                  {topMovies.map(movie => {
+                    const percent = movie.soldTickets ? Math.min(100, (movie.soldTickets / 1000) * 100) : 0;
+                    return (
+                      <li key={movie.id}>
+                        <div>
+                          <p>{movie.title}</p>
+                          <small>{movie.soldTickets.toLocaleString('vi-VN')} vé</small>
+                        </div>
+                        <div className="admin-progress">
+                          <span style={{ width: `${percent}%` }} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </article>
+
+              <article className="admin-chart-card admin-chart-card--list">
+                <header>
+                  <p>Lịch ra mắt</p>
+                  <span className="admin-pill admin-pill--ghost">3 phim</span>
+                </header>
+                <ul>
+                  {UPCOMING_PREMIERES.map(movie => (
+                    <li key={movie.title}>
+                      <div>
+                        <p>{movie.title}</p>
+                        <small>Mở bán {movie.date}</small>
+                      </div>
+                      <span className="admin-chip admin-chip--ghost">{movie.branches} cụm rạp</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </section>
+
+            <section className="admin-manage-grid">
+              <article className="admin-form-section admin-card">
+                <div className="admin-section-head">
+                  <h2>Thêm phim mới</h2>
+                  <p>Đồng bộ poster, lịch phát hành và hạn mức tuổi.</p>
+                </div>
+                <form className="admin-form" onSubmit={handleSubmit}>
+                  <div className="admin-form-grid">
+                    <label>
+                      Tiêu đề
+                      <input
+                        className="admin-input"
+                        value={form.title}
+                        onChange={event => setForm(prev => ({ ...prev, title: event.target.value }))}
+                        placeholder="Nhập tên phim"
+                      />
+                    </label>
+
+                    <label>
+                      Trạng thái
+                      <select
+                        className="admin-input"
+                        value={form.status}
+                        onChange={event => setForm(prev => ({ ...prev, status: event.target.value as MovieStatus }))}
+                      >
+                        <option value="nowShowing">Đang chiếu</option>
+                        <option value="comingSoon">Sắp chiếu</option>
+                        <option value="draft">Nháp</option>
+                      </select>
+                    </label>
+
+                    <label>
+                      Ngày phát hành
+                      <input
+                        className="admin-input"
+                        type="date"
+                        value={form.releaseDate}
+                        onChange={event => setForm(prev => ({ ...prev, releaseDate: event.target.value }))}
+                      />
+                    </label>
+
+                    <label>
+                      Thời lượng (phút)
+                      <input
+                        className="admin-input"
+                        type="number"
+                        min={40}
+                        max={240}
+                        value={form.duration}
+                        onChange={event => setForm(prev => ({ ...prev, duration: Number(event.target.value) }))}
+                      />
+                    </label>
+
+                    <label>
+                      Độ tuổi
+                      <input
+                        className="admin-input"
+                        value={form.rating}
+                        onChange={event => setForm(prev => ({ ...prev, rating: event.target.value }))}
+                        placeholder="P / C13 / C16 / C18"
+                      />
+                    </label>
+
+                    <label>
+                      Poster (URL)
+                      <select
+                        className="admin-input"
+                        value={form.poster}
+                        onChange={event => setForm(prev => ({ ...prev, poster: event.target.value }))}
+                      >
+                        {POSTER_POOL.map(src => (
+                          <option key={src} value={src}>
+                            {src.split('/').pop()}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <button type="submit" className="admin-submit-btn">
+                    Lưu phim
+                  </button>
+                </form>
+              </article>
+
+              <article className="admin-table-section admin-card">
+                <div className="admin-section-head">
+                  <div>
+                    <h2>Danh sách phim</h2>
+                    <p>{filteredMovies.length} phim phù hợp bộ lọc</p>
+                  </div>
+                  <div className="admin-filters admin-filters--compact">
+                    {filterOptions.map(option => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`admin-filter-btn${filter === option.id ? ' admin-filter-btn--active' : ''}`}
+                        onClick={() => setFilter(option.id)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="admin-table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Phim</th>
+                        <th>Trạng thái</th>
+                        <th>Lịch</th>
+                        <th>Vé đã bán</th>
+                        <th>Thiết lập</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredMovies.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="admin-table-empty">
+                            Không có phim nào khớp bộ lọc.
+                          </td>
+                        </tr>
+                      )}
+
+                      {filteredMovies.map(movie => (
+                        <tr key={movie.id}>
+                          <td>
+                            <div className="admin-movie">
+                              <img src={movie.poster} alt={movie.title} />
+                              <div>
+                                <p className="admin-movie-title">{movie.title}</p>
+                                <p className="admin-movie-meta">
+                                  {movie.duration} phút • {movie.rating}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`status-badge status-badge--${movie.status}`}>
+                              {STATUS_LABELS[movie.status]}
+                            </span>
+                          </td>
+                          <td>
+                            <p className="admin-movie-meta">{movie.releaseDate || 'Chưa cập nhật'}</p>
+                            <p className="admin-movie-meta">{movie.totalShows} suất chiếu</p>
+                          </td>
+                          <td>
+                            <p className="admin-movie-meta">{movie.soldTickets.toLocaleString('vi-VN')} vé</p>
+                          </td>
+                          <td>
+                            <div className="admin-actions">
+                              <select
+                                className="admin-input admin-input--dense"
+                                value={movie.status}
+                                onChange={event => handleStatusChange(movie.id, event.target.value as MovieStatus)}
+                              >
+                                <option value="nowShowing">Đang chiếu</option>
+                                <option value="comingSoon">Sắp chiếu</option>
+                                <option value="draft">Nháp</option>
+                              </select>
+                              <button
+                                type="button"
+                                className={`admin-chip${movie.isFeatured ? ' admin-chip--active' : ''}`}
+                                onClick={() => handleFeatureToggle(movie.id)}
+                              >
+                                {movie.isFeatured ? 'Đang nổi bật' : 'Đánh dấu nổi bật'}
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-chip admin-chip--danger"
+                                onClick={() => handleDelete(movie.id)}
+                              >
+                                Xóa
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
           </section>
         </div>
       </main>
