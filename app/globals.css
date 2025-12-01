@@ -180,6 +180,79 @@ button {
   opacity: 1;
 }
 
+/* Apply shimmering hover to every other button */
+:where(
+  .mv-card__btn,
+  .bk-btn,
+  .admin-chip,
+  .admin-filter-btn,
+  .admin-filter-btn button,
+  .header__navbar-item-link,
+  .header__search-btn,
+  .btn-cta--ghost,
+  .mnav__auth a
+) {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.35s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+:where(
+  .mv-card__btn,
+  .bk-btn,
+  .admin-chip,
+  .admin-filter-btn,
+  .header__navbar-item-link,
+  .header__search-btn,
+  .btn-cta--ghost,
+  .mnav__auth a
+)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(244, 114, 182, 0.4), rgba(168, 85, 247, 0.55), rgba(34, 211, 238, 0.45));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+:where(
+  .mv-card__btn,
+  .bk-btn,
+  .admin-chip,
+  .admin-filter-btn,
+  .header__navbar-item-link,
+  .header__search-btn,
+  .btn-cta--ghost,
+  .mnav__auth a
+):hover::before {
+  opacity: 1;
+}
+
+:where(
+  .mv-card__btn,
+  .bk-btn,
+  .admin-chip,
+  .admin-filter-btn,
+  .header__navbar-item-link,
+  .header__search-btn,
+  .btn-cta--ghost,
+  .mnav__auth a
+) > *,
+:where(
+  .mv-card__btn,
+  .bk-btn,
+  .admin-chip,
+  .admin-filter-btn,
+  .header__navbar-item-link,
+  .header__search-btn,
+  .btn-cta--ghost,
+  .mnav__auth a
+) img {
+  position: relative;
+  z-index: 1;
+}
+
 .btn-cta--ghost,
 .bk-btn,
 .admin-chip,
