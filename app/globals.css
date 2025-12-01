@@ -1340,16 +1340,16 @@ button {
 
 /* ===== Admin 2.0 layout ===== */
 .admin-page {
-  padding: 60px 32px 60px;
+  padding: 32px 32px 60px;
   min-height: 100vh;
 }
 
 .admin-shell {
-  width: min(1600px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 28px;
 }
 
 .admin-sidebar {
