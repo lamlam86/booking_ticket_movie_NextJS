@@ -1345,10 +1345,10 @@ button {
 }
 
 .admin-shell {
-  width: min(1440px, 100%);
+  width: min(1600px, 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 24px;
 }
 
