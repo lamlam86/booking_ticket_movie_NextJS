@@ -138,24 +138,46 @@ button {
   text-decoration: none;
   color: var(--text-primary);
   cursor: pointer;
-  transition: transform 0.08s ease, filter 0.2s ease, box-shadow 0.25s ease, background 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, filter 0.25s ease, box-shadow 0.35s ease, background 0.35s ease;
 }
 
 .btn-cta--solid,
 .btn-login,
 .admin-submit-btn,
 .bk-btn.primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  border-color: var(--primary-light);
-  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.35);
+  background: linear-gradient(120deg, #a855f7, #7c3aed);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 30px rgba(129, 76, 255, 0.35);
 }
 
 .btn-cta--solid:hover,
 .btn-login:hover,
 .admin-submit-btn:hover,
 .bk-btn.primary:not(:disabled):hover {
-  filter: brightness(1.05);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(129, 76, 255, 0.45);
+}
+
+.btn-cta--solid::before,
+.btn-login::before,
+.bk-btn.primary::before,
+.admin-submit-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, #f472b6, #a855f7, #22d3ee);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+
+.btn-cta--solid:hover::before,
+.btn-login:hover::before,
+.bk-btn.primary:hover::before,
+.admin-submit-btn:hover::before {
+  opacity: 1;
 }
 
 .btn-cta--ghost,
@@ -180,6 +202,15 @@ button {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-cta span,
+.btn-login span,
+.bk-btn span,
+.admin-submit-btn span,
+.header .btn-cta span {
+  position: relative;
+  z-index: 1;
 }
 
 /* ============ HEADER + NAVIGATION ============ */
