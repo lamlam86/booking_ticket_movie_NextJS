@@ -269,8 +269,6 @@ export default function AdminMoviesPage() {
 
   return (
     <div className="app">
-      <Header />
-
       <main className="admin-page">
         <div className="admin-shell">
           <aside className="admin-sidebar">
@@ -617,8 +615,6 @@ export default function AdminMoviesPage() {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
