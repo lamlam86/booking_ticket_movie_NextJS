@@ -1339,8 +1339,13 @@ button {
 .status-badge--draft { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
 
 /* ===== Admin 2.0 layout ===== */
+.admin-page {
+  padding: 140px 32px 60px;
+  min-height: 100vh;
+}
+
 .admin-shell {
-  width: min(1300px, 100%);
+  width: min(1440px, 100%);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 260px 1fr;
