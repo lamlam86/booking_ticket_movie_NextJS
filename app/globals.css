@@ -128,8 +128,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
-  padding: 0 20px;
+  height: 42px;
+  padding: 0 18px;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
   font-weight: 600;
@@ -198,13 +198,13 @@ button {
 .header__container {
   width: min(1200px, 100%);
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 10px 20px;
 }
 
 .header__navbar {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
 }
 
 .header__logo img {
@@ -213,7 +213,7 @@ button {
 
 .header__cta {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -221,8 +221,21 @@ button {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
+}
+
+.header .btn-cta,
+.header__navbar-item-link {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+}
+
+.header .btn-cta img,
+.header__navbar-item-link img {
+  width: 16px;
+  height: 16px;
 }
 
 .header__search {
@@ -231,8 +244,8 @@ button {
   gap: 10px;
   flex: 1 1 auto;
   min-width: 240px;
-  height: 44px;
-  padding: 0 14px;
+  height: 38px;
+  padding: 0 12px;
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border);
@@ -253,9 +266,9 @@ button {
 }
 
 .header__search-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.05);
 }
