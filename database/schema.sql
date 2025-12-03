@@ -50,7 +50,7 @@ CREATE TABLE movies (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Branches & screens
+-- Branches & Screens
 CREATE TABLE branches (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE seats (
   FOREIGN KEY (screen_id) REFERENCES screens(id) ON DELETE CASCADE
 );
 
--- Showtimes & pricing
+-- Showtimes
 CREATE TABLE showtimes (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   movie_id BIGINT NOT NULL,
@@ -170,7 +170,7 @@ CREATE TABLE movie_promotions (
   FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE
 );
 
--- Audit logs (optional)
+-- Audit logs
 CREATE TABLE audit_logs (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT,
@@ -180,7 +180,7 @@ CREATE TABLE audit_logs (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Seed minimal roles
+-- Seed default roles
 INSERT INTO roles (name, description) VALUES
 ('admin','Quản trị hệ thống'),
 ('staff','Nhân viên rạp'),
