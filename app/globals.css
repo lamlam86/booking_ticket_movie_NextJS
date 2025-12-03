@@ -1334,9 +1334,17 @@ button {
   font-weight: 600;
 }
 
-.status-badge--nowShowing { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-.status-badge--comingSoon { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-.status-badge--draft { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+.status-badge--now_showing,
+.status-badge--active,
+.status-badge--paid { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.status-badge--coming_soon,
+.status-badge--pending,
+.status-badge--maintenance { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.status-badge--draft,
+.status-badge--inactive,
+.status-badge--refunded,
+.status-badge--cancelled,
+.status-badge--failed { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
 
 /* ===== Admin 2.0 layout ===== */
 .admin-page {

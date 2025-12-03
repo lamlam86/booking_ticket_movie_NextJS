@@ -30,8 +30,8 @@ model users {
 }
 
 model user_roles {
-  user   users @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  role   roles @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  user    users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role    roles @relation(fields: [role_id], references: [id], onDelete: Cascade)
   user_id BigInt
   role_id Int
 
@@ -39,9 +39,9 @@ model user_roles {
 }
 
 model movies {
-  id               BigInt        @id @default(autoincrement())
+  id               BigInt          @id @default(autoincrement())
   title            String
-  slug             String?       @unique
+  slug             String?         @unique
   synopsis         String?
   genres           String?
   duration_minutes Int?
@@ -50,17 +50,17 @@ model movies {
   poster_url       String?
   backdrop_url     String?
   trailer_url      String?
-  status           MovieStatus   @default(draft)
+  status           MovieStatus     @default(draft)
   release_date     DateTime?
-  is_featured      Boolean       @default(false)
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @updatedAt
+  is_featured      Boolean         @default(false)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
   showtimes        showtimes[]
   movie_promotions movie_promotions[]
 }
 
 model branches {
-  id        Int       @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   name      String
   address   String?
   city      String?
@@ -72,33 +72,33 @@ model branches {
 }
 
 model screens {
-  id        Int        @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   branch_id Int
   name      String
   seat_rows Int
   seat_cols Int
-  type      ScreenType    @default(standard)
-  status    BranchStatus  @default(active)
-  branch    branches      @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  type      ScreenType   @default(standard)
+  status    BranchStatus @default(active)
+  branch    branches     @relation(fields: [branch_id], references: [id], onDelete: Cascade)
   seats     seats[]
   showtimes showtimes[]
 }
 
 model seats {
-  id         Int       @id @default(autoincrement())
-  screen_id  Int
-  seat_code  String
-  seat_row   String
+  id          Int      @id @default(autoincrement())
+  screen_id   Int
+  seat_code   String
+  seat_row    String
   seat_number Int
-  seat_type  SeatType @default(standard)
-  screen     screens  @relation(fields: [screen_id], references: [id], onDelete: Cascade)
+  seat_type   SeatType @default(standard)
+  screen      screens  @relation(fields: [screen_id], references: [id], onDelete: Cascade)
   booking_items booking_items[]
 
   @@unique([screen_id, seat_code])
 }
 
 model showtimes {
-  id          BigInt       @id @default(autoincrement())
+  id          BigInt         @id @default(autoincrement())
   movie_id    BigInt
   screen_id   Int
   start_time  DateTime
@@ -107,36 +107,36 @@ model showtimes {
   language    String?
   subtitle    String?
   status      ShowtimeStatus @default(scheduled)
-  movie       movies        @relation(fields: [movie_id], references: [id], onDelete: Cascade)
-  screen      screens       @relation(fields: [screen_id], references: [id], onDelete: Cascade)
+  movie       movies         @relation(fields: [movie_id], references: [id], onDelete: Cascade)
+  screen      screens        @relation(fields: [screen_id], references: [id], onDelete: Cascade)
   bookings    bookings[]
 }
 
 model bookings {
-  id             BigInt        @id @default(autoincrement())
-  user_id        BigInt?
-  showtime_id    BigInt
-  booking_code   String        @unique
-  subtotal       Decimal
-  discount       Decimal?      @default(0)
-  total_amount   Decimal
-  payment_method PaymentMethod @default(momo)
-  payment_status PaymentStatus @default(pending)
-  status         BookingStatus @default(reserved)
-  created_at     DateTime      @default(now())
-  user           users?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  showtime       showtimes     @relation(fields: [showtime_id], references: [id], onDelete: Cascade)
-  booking_items  booking_items[]
+  id               BigInt        @id @default(autoincrement())
+  user_id          BigInt?
+  showtime_id      BigInt
+  booking_code     String        @unique
+  subtotal         Decimal
+  discount         Decimal?      @default(0)
+  total_amount     Decimal
+  payment_method   PaymentMethod @default(momo)
+  payment_status   PaymentStatus @default(pending)
+  status           BookingStatus @default(reserved)
+  created_at       DateTime      @default(now())
+  user             users?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  showtime         showtimes     @relation(fields: [showtime_id], references: [id], onDelete: Cascade)
+  booking_items    booking_items[]
   booking_concessions booking_concessions[]
 }
 
 model booking_items {
-  id          BigInt   @id @default(autoincrement())
-  booking_id  BigInt
-  seat_id     Int
-  seat_price  Decimal
-  booking     bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
-  seat        seats    @relation(fields: [seat_id], references: [id], onDelete: Cascade)
+  id         BigInt   @id @default(autoincrement())
+  booking_id BigInt
+  seat_id    Int
+  seat_price Decimal
+  booking    bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  seat       seats    @relation(fields: [seat_id], references: [id], onDelete: Cascade)
 
   @@unique([booking_id, seat_id])
 }
@@ -162,18 +162,18 @@ model booking_concessions {
 }
 
 model promotions {
-  id             Int        @id @default(autoincrement())
-  name           String
-  code           String?    @unique
-  description    String?
-  discount_type  DiscountType
-  discount_value Decimal
-  max_usage      Int?
-  usage_count    Int         @default(0)
+  id              Int        @id @default(autoincrement())
+  name            String
+  code            String?    @unique
+  description     String?
+  discount_type   DiscountType
+  discount_value  Decimal
+  max_usage       Int?
+  usage_count     Int         @default(0)
   min_order_value Decimal?
-  start_date     DateTime?
-  end_date       DateTime?
-  status         PromotionStatus @default(draft)
+  start_date      DateTime?
+  end_date        DateTime?
+  status          PromotionStatus @default(draft)
   movie_promotions movie_promotions[]
 }
 
@@ -187,12 +187,12 @@ model movie_promotions {
 }
 
 model audit_logs {
-  id        BigInt   @id @default(autoincrement())
-  user_id   BigInt?
-  action    String
-  payload   Json?
+  id         BigInt   @id @default(autoincrement())
+  user_id    BigInt?
+  action     String
+  payload    Json?
   created_at DateTime @default(now())
-  user      users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user       users?   @relation(fields: [user_id], references: [id], onDelete: SetNull)
 }
 
 enum Status {
