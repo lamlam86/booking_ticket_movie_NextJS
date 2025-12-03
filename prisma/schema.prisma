@@ -218,7 +218,7 @@ enum ScreenType {
   standard
   vip
   imax
-  _4dx
+  dx4    @map("4dx")
   premium
 }
 
