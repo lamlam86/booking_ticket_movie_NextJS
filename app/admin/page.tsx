@@ -1,17 +1,21 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-const POSTER_POOL = [
-  '/assets/images/phim1.png',
-  '/assets/images/phim2.png',
-  '/assets/images/phim3.png',
-  '/assets/images/phim4.png',
-  '/assets/images/phim5.png',
-  '/assets/images/phim6.png',
-];
+type MovieStatus = 'now_showing' | 'coming_soon' | 'draft';
+
+type MovieRecord = {
+  id: number;
+  title: string;
+  poster: string | null;
+  status: MovieStatus;
+  releaseDate: string;
+  duration: number;
+  rating: string;
+  isFeatured: boolean;
+  soldTickets: number;
+  totalShows: number;
+};
 
 const NAV_LINKS = [
   { label: 'Tổng quan', badge: 'Live' },
@@ -44,112 +48,16 @@ const BUILD_LINE_POINTS = (values: number[]) => {
     .map((value, index) => {
       const x = (index / (values.length - 1 || 1)) * 100;
       const normalized = max === min ? 0.5 : (value - min) / (max - min);
-      const y = 100 - normalized * 80 - 10; // giữ trong khoảng 10-90
+      const y = 100 - normalized * 80 - 10;
       return `${x},${y}`;
     })
     .join(' ');
 };
 
-type MovieStatus = 'nowShowing' | 'comingSoon' | 'draft';
-
-type Movie = {
-  id: string;
-  title: string;
-  poster: string;
-  status: MovieStatus;
-  releaseDate: string;
-  duration: number;
-  rating: string;
-  isFeatured: boolean;
-  soldTickets: number;
-  totalShows: number;
-};
-
-const STATUS_LABELS: Record<MovieStatus, string> = {
-  nowShowing: 'Đang chiếu',
-  comingSoon: 'Sắp chiếu',
-  draft: 'Nháp',
-};
-
-const seedMovies: Movie[] = [
-  {
-    id: 'n-1',
-    title: 'Avatar Reborn',
-    poster: POSTER_POOL[0],
-    status: 'nowShowing',
-    releaseDate: '2024-11-10',
-    duration: 128,
-    rating: 'C13',
-    isFeatured: true,
-    soldTickets: 860,
-    totalShows: 32,
-  },
-  {
-    id: 'n-2',
-    title: 'Haunted Melody',
-    poster: POSTER_POOL[1],
-    status: 'nowShowing',
-    releaseDate: '2024-11-01',
-    duration: 115,
-    rating: 'C16',
-    isFeatured: false,
-    soldTickets: 640,
-    totalShows: 26,
-  },
-  {
-    id: 'c-1',
-    title: 'Future Horizon',
-    poster: POSTER_POOL[2],
-    status: 'comingSoon',
-    releaseDate: '2025-01-05',
-    duration: 134,
-    rating: 'P',
-    isFeatured: true,
-    soldTickets: 0,
-    totalShows: 0,
-  },
-  {
-    id: 'c-2',
-    title: 'Moonlit Heist',
-    poster: POSTER_POOL[3],
-    status: 'comingSoon',
-    releaseDate: '2024-12-18',
-    duration: 123,
-    rating: 'C13',
-    isFeatured: false,
-    soldTickets: 0,
-    totalShows: 0,
-  },
-  {
-    id: 'd-1',
-    title: 'Untitled Horror Project',
-    poster: POSTER_POOL[4],
-    status: 'draft',
-    releaseDate: '2025-03-01',
-    duration: 100,
-    rating: 'C18',
-    isFeatured: false,
-    soldTickets: 0,
-    totalShows: 0,
-  },
-  {
-    id: 'd-2',
-    title: 'Summer Romance 2',
-    poster: POSTER_POOL[5],
-    status: 'draft',
-    releaseDate: '2025-02-10',
-    duration: 105,
-    rating: 'P',
-    isFeatured: false,
-    soldTickets: 0,
-    totalShows: 0,
-  },
-];
-
 const EMPTY_FORM = {
   title: '',
-  poster: POSTER_POOL[0],
-  status: 'nowShowing' as MovieStatus,
+  poster: '',
+  status: 'now_showing' as MovieStatus,
   releaseDate: '',
   duration: 120,
   rating: 'P',
@@ -160,12 +68,39 @@ type FlashState = {
   message: string;
 } | null;
 
+const STATUS_LABELS: Record<MovieStatus, string> = {
+  now_showing: 'Đang chiếu',
+  coming_soon: 'Sắp chiếu',
+  draft: 'Nháp',
+};
+
 export default function AdminMoviesPage() {
-  const [movies, setMovies] = useState<Movie[]>(seedMovies);
+  const [movies, setMovies] = useState<MovieRecord[]>([]);
   const [filter, setFilter] = useState<'all' | MovieStatus>('all');
   const [search, setSearch] = useState('');
   const [form, setForm] = useState(EMPTY_FORM);
   const [flash, setFlash] = useState<FlashState>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchMovies = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/movies');
+      if (!res.ok) throw new Error('Fetch failed');
+      const payload = await res.json();
+      setMovies(payload.data ?? []);
+    } catch (error) {
+      console.error(error);
+      setFlash({ type: 'error', message: 'Không thể tải danh sách phim.' });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMovies();
+  }, [fetchMovies]);
 
   const filteredMovies = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -177,29 +112,30 @@ export default function AdminMoviesPage() {
   }, [filter, movies, search]);
 
   const stats = useMemo(() => {
-    const totalRevenue = movies
-      .filter(m => m.status === 'nowShowing')
-      .reduce((sum, movie) => sum + movie.soldTickets * 45000, 0);
+    const nowShowing = movies.filter(m => m.status === 'now_showing');
+    const coming = movies.filter(m => m.status === 'coming_soon');
+    const draft = movies.filter(m => m.status === 'draft');
+    const revenue = nowShowing.reduce((sum, movie) => sum + movie.soldTickets * 45000, 0);
 
     return [
       {
         label: 'Tổng phim',
         value: movies.length,
-        subText: `${movies.filter(m => m.status === 'nowShowing').length} đang chiếu`,
+        subText: `${nowShowing.length} đang chiếu`,
       },
       {
         label: 'Vé đã bán (ước tính)',
-        value: totalRevenue.toLocaleString('vi-VN') + 'đ',
+        value: revenue.toLocaleString('vi-VN') + 'đ',
         subText: 'Giá vé giả lập 45.000đ',
       },
       {
         label: 'Sắp chiếu',
-        value: movies.filter(m => m.status === 'comingSoon').length,
+        value: coming.length,
         subText: 'Đã sẵn sàng mở vé',
       },
       {
         label: 'Nháp',
-        value: movies.filter(m => m.status === 'draft').length,
+        value: draft.length,
         subText: 'Cần duyệt nội dung',
       },
     ];
@@ -207,65 +143,114 @@ export default function AdminMoviesPage() {
 
   const topMovies = useMemo(() => {
     return [...movies]
-      .filter(m => m.status === 'nowShowing')
+      .filter(m => m.status === 'now_showing')
       .sort((a, b) => b.soldTickets - a.soldTickets)
       .slice(0, 4);
   }, [movies]);
 
-  const filterOptions: { id: 'all' | MovieStatus; label: string }[] = [
-    { id: 'all', label: 'Tất cả' },
-    { id: 'nowShowing', label: 'Đang chiếu' },
-    { id: 'comingSoon', label: 'Sắp chiếu' },
-    { id: 'draft', label: 'Nháp' },
-  ];
+  const resetFlashAfterDelay = (message: FlashState, delay = 2500) => {
+    setFlash(message);
+    if (message) {
+      setTimeout(() => setFlash(null), delay);
+    }
+  };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const upsertMovie = (next: MovieRecord) => {
+    setMovies(prev => {
+      const exists = prev.findIndex(movie => movie.id === next.id);
+      if (exists === -1) return [next, ...prev];
+      const copy = [...prev];
+      copy[exists] = next;
+      return copy;
+    });
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedTitle = form.title.trim();
-
     if (!trimmedTitle || !form.releaseDate) {
-      setFlash({ type: 'error', message: 'Vui lòng nhập tiêu đề và ngày phát hành.' });
+      resetFlashAfterDelay({ type: 'error', message: 'Vui lòng nhập tiêu đề và ngày phát hành.' });
       return;
     }
 
-    const newMovie: Movie = {
-      id: `m-${Date.now()}`,
-      title: trimmedTitle,
-      poster: form.poster,
-      status: form.status,
-      releaseDate: form.releaseDate,
-      duration: Number(form.duration) || 90,
-      rating: form.rating,
-      isFeatured: false,
-      soldTickets: 0,
-      totalShows: 0,
-    };
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/movies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: trimmedTitle,
+          status: form.status,
+          poster: form.poster || null,
+          releaseDate: form.releaseDate,
+          duration: form.duration,
+          rating: form.rating,
+        }),
+      });
 
-    setMovies(prev => [newMovie, ...prev]);
-    setForm(EMPTY_FORM);
-    setFlash({ type: 'success', message: 'Đã thêm phim vào danh sách!' });
+      if (!res.ok) throw new Error('create failed');
+      const payload = await res.json();
+      upsertMovie(payload.data);
+      setForm(EMPTY_FORM);
+      resetFlashAfterDelay({ type: 'success', message: 'Đã thêm phim vào danh sách!' });
+    } catch (error) {
+      console.error(error);
+      resetFlashAfterDelay({ type: 'error', message: 'Không thể thêm phim.' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleStatusChange = (movieId: string, nextStatus: MovieStatus) => {
-    setMovies(prev => prev.map(movie => (movie.id === movieId ? { ...movie, status: nextStatus } : movie)));
+  const handleStatusChange = async (movieId: number, nextStatus: MovieStatus) => {
+    try {
+      const res = await fetch(`/api/movies/${movieId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      if (!res.ok) throw new Error();
+      const payload = await res.json();
+      upsertMovie(payload.data);
+    } catch (error) {
+      console.error(error);
+      resetFlashAfterDelay({ type: 'error', message: 'Không thể cập nhật trạng thái.' });
+    }
   };
 
-  const handleFeatureToggle = (movieId: string) => {
-    setMovies(prev =>
-      prev.map(movie =>
-        movie.id === movieId
-          ? {
-              ...movie,
-              isFeatured: !movie.isFeatured,
-            }
-          : movie,
-      ),
-    );
+  const handleFeatureToggle = async (movieId: number, next: boolean) => {
+    try {
+      const res = await fetch(`/api/movies/${movieId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isFeatured: next }),
+      });
+      if (!res.ok) throw new Error();
+      const payload = await res.json();
+      upsertMovie(payload.data);
+    } catch (error) {
+      console.error(error);
+      resetFlashAfterDelay({ type: 'error', message: 'Không thể cập nhật nổi bật.' });
+    }
   };
 
-  const handleDelete = (movieId: string) => {
-    setMovies(prev => prev.filter(movie => movie.id !== movieId));
+  const handleDelete = async (movieId: number) => {
+    if (!confirm('Bạn chắc chắn muốn xóa phim này?')) return;
+    try {
+      const res = await fetch(`/api/movies/${movieId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      setMovies(prev => prev.filter(movie => movie.id !== movieId));
+    } catch (error) {
+      console.error(error);
+      resetFlashAfterDelay({ type: 'error', message: 'Không thể xóa phim.' });
+    }
   };
+
+  const filterOptions: { id: 'all' | MovieStatus; label: string }[] = [
+    { id: 'all', label: 'Tất cả' },
+    { id: 'now_showing', label: 'Đang chiếu' },
+    { id: 'coming_soon', label: 'Sắp chiếu' },
+    { id: 'draft', label: 'Nháp' },
+  ];
 
   return (
     <div className="app">
@@ -453,8 +438,8 @@ export default function AdminMoviesPage() {
                         value={form.status}
                         onChange={event => setForm(prev => ({ ...prev, status: event.target.value as MovieStatus }))}
                       >
-                        <option value="nowShowing">Đang chiếu</option>
-                        <option value="comingSoon">Sắp chiếu</option>
+                        <option value="now_showing">Đang chiếu</option>
+                        <option value="coming_soon">Sắp chiếu</option>
                         <option value="draft">Nháp</option>
                       </select>
                     </label>
@@ -493,22 +478,17 @@ export default function AdminMoviesPage() {
 
                     <label>
                       Poster (URL)
-                      <select
+                      <input
                         className="admin-input"
                         value={form.poster}
                         onChange={event => setForm(prev => ({ ...prev, poster: event.target.value }))}
-                      >
-                        {POSTER_POOL.map(src => (
-                          <option key={src} value={src}>
-                            {src.split('/').pop()}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="https://..."
+                      />
                     </label>
                   </div>
 
-                  <button type="submit" className="admin-submit-btn">
-                    Lưu phim
+                  <button type="submit" className="admin-submit-btn" disabled={submitting}>
+                    {submitting ? 'Đang lưu...' : 'Lưu phim'}
                   </button>
                 </form>
               </article>
@@ -517,7 +497,9 @@ export default function AdminMoviesPage() {
                 <div className="admin-section-head">
                   <div>
                     <h2>Danh sách phim</h2>
-                    <p>{filteredMovies.length} phim phù hợp bộ lọc</p>
+                    <p>
+                      {loading ? 'Đang tải dữ liệu...' : `${filteredMovies.length} phim phù hợp bộ lọc`}
+                    </p>
                   </div>
                   <div className="admin-filters admin-filters--compact">
                     {filterOptions.map(option => (
@@ -545,7 +527,7 @@ export default function AdminMoviesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredMovies.length === 0 && (
+                      {!loading && filteredMovies.length === 0 && (
                         <tr>
                           <td colSpan={5} className="admin-table-empty">
                             Không có phim nào khớp bộ lọc.
@@ -557,11 +539,11 @@ export default function AdminMoviesPage() {
                         <tr key={movie.id}>
                           <td>
                             <div className="admin-movie">
-                              <img src={movie.poster} alt={movie.title} />
+                              <img src={movie.poster || '/assets/images/phim1.png'} alt={movie.title} />
                               <div>
                                 <p className="admin-movie-title">{movie.title}</p>
                                 <p className="admin-movie-meta">
-                                  {movie.duration} phút • {movie.rating}
+                                  {movie.duration} phút • {movie.rating || 'N/A'}
                                 </p>
                               </div>
                             </div>
@@ -583,16 +565,18 @@ export default function AdminMoviesPage() {
                               <select
                                 className="admin-input admin-input--dense"
                                 value={movie.status}
-                                onChange={event => handleStatusChange(movie.id, event.target.value as MovieStatus)}
+                                onChange={event =>
+                                  handleStatusChange(movie.id, event.target.value as MovieStatus)
+                                }
                               >
-                                <option value="nowShowing">Đang chiếu</option>
-                                <option value="comingSoon">Sắp chiếu</option>
+                                <option value="now_showing">Đang chiếu</option>
+                                <option value="coming_soon">Sắp chiếu</option>
                                 <option value="draft">Nháp</option>
                               </select>
                               <button
                                 type="button"
                                 className={`admin-chip${movie.isFeatured ? ' admin-chip--active' : ''}`}
-                                onClick={() => handleFeatureToggle(movie.id)}
+                                onClick={() => handleFeatureToggle(movie.id, !movie.isFeatured)}
                               >
                                 {movie.isFeatured ? 'Đang nổi bật' : 'Đánh dấu nổi bật'}
                               </button>
