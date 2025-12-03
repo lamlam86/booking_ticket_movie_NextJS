@@ -1334,8 +1334,8 @@ button {
   font-weight: 600;
 }
 
-.status-badge--nowShowing { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-.status-badge--comingSoon { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.status-badge--now_showing { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.status-badge--coming_soon { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
 .status-badge--draft { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
 
 /* ===== Admin 2.0 layout ===== */
