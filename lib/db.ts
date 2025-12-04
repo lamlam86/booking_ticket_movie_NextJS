@@ -1,5 +1,41 @@
 import mysql from 'mysql2/promise';
 
+type DbConfig = {
+  host?: string;
+  user?: string;
+  password?: string;
+  database?: string;
+  port?: number;
+};
+
+const defaultConfig: DbConfig = {
+  host: process.env.DB_HOST ?? '127.0.0.1',
+  user: process.env.DB_USER ?? 'root',
+  password: process.env.DB_PASSWORD ?? '',
+  database: process.env.DB_NAME ?? 'cinehub',
+  port: Number(process.env.DB_PORT ?? 3306),
+};
+
+let connection: mysql.Connection | null = null;
+
+export async function getDb(config: DbConfig = {}): Promise<mysql.Connection> {
+  if (!connection) {
+    connection = await mysql.createConnection({
+      ...defaultConfig,
+      ...config,
+    });
+  }
+  return connection;
+}
+
+export async function closeDb() {
+  if (connection) {
+    await connection.end();
+    connection = null;
+  }
+}
+import mysql from 'mysql2/promise';
+
 const {
   DB_HOST = '127.0.0.1',
   DB_PORT = '3306',
