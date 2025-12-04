@@ -1,24 +1,41 @@
-import mysql from "mysql2/promise";
+import mysql from 'mysql2/promise';
 
 const {
-  DB_HOST = "127.0.0.1",
-  DB_USER = "root",
-  DB_PASSWORD = "",
-  DB_NAME = "cinehub",
-  DB_PORT = "3306",
+  DB_HOST = '127.0.0.1',
+  DB_PORT = '3306',
+  DB_USER = 'root',
+  DB_PASSWORD = '',
+  DB_NAME = 'cinehub',
 } = process.env;
 
-/**
- * Pool kết nối MySQL cơ bản cho Next.js (app router).
- * Dùng `await db.query('SELECT ...')` trong server action / route handler.
- */
-export const db = mysql.createPool({
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_NAME,
-  port: Number(DB_PORT),
-  connectionLimit: 10,
-});
+let cachedConnection: mysql.Connection | null = null;
 
-export default db;
+async function createConnection() {
+  return mysql.createConnection({
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+  });
+}
+
+export async function getDb() {
+  if (cachedConnection) {
+    try {
+      await cachedConnection.ping();
+      return cachedConnection;
+    } catch (_) {
+      cachedConnection = null;
+    }
+  }
+
+  cachedConnection = await createConnection();
+  return cachedConnection;
+}
+
+export async function query<T = unknown>(sql: string, params: any[] = []) {
+  const conn = await getDb();
+  const [rows] = await conn.execute(sql, params);
+  return rows as T;
+}
