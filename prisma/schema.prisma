@@ -20,7 +20,9 @@ model users {
   email         String       @unique
   password_hash String
   phone         String?
+  date_of_birth DateTime?
   avatar_url    String?
+  points        Int          @default(0)
   status        Status       @default(active)
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
@@ -42,11 +44,14 @@ model movies {
   id               BigInt          @id @default(autoincrement())
   title            String
   slug             String?         @unique
-  synopsis         String?
+  synopsis         String?         @db.Text
   genres           String?
   duration_minutes Int?
   rating           String?
   language         String?
+  country          String?
+  director         String?
+  cast             String?         @db.Text
   poster_url       String?
   backdrop_url     String?
   trailer_url      String?
@@ -123,11 +128,20 @@ model bookings {
   payment_method   PaymentMethod @default(momo)
   payment_status   PaymentStatus @default(pending)
   status           BookingStatus @default(reserved)
+  transaction_id   String?       @unique
+  qr_code          String?       @db.Text
+  qr_expires_at    DateTime?
+  ticket_qr_code   String?       @db.Text
+  email_sent       Boolean       @default(false)
+  email_sent_at    DateTime?
+  paid_at          DateTime?
   created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
   user             users?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
   showtime         showtimes     @relation(fields: [showtime_id], references: [id], onDelete: Cascade)
   booking_items    booking_items[]
   booking_concessions booking_concessions[]
+  payments         payments[]
 }
 
 model booking_items {
@@ -186,6 +200,29 @@ model movie_promotions {
   @@id([movie_id, promotion_id])
 }
 
+model payments {
+  id              BigInt        @id @default(autoincrement())
+  booking_id      BigInt
+  transaction_id  String         @unique
+  amount          Decimal
+  bank_account    String?
+  bank_name       String?
+  qr_code         String?       @db.Text
+  qr_data         String?       @db.Text
+  payment_method  PaymentMethod @default(vnpay)
+  status          PaymentStatus @default(pending)
+  bank_response   Json?
+  expires_at      DateTime?
+  paid_at         DateTime?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  booking         bookings      @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@index([transaction_id])
+  @@index([booking_id])
+  @@index([status])
+}
+
 model audit_logs {
   id         BigInt   @id @default(autoincrement())
   user_id    BigInt?
@@ -218,7 +255,7 @@ enum ScreenType {
   standard
   vip
   imax
-  dx4    @map("4dx")
+  dx4 @map("4dx")
   premium
 }
 
@@ -242,6 +279,7 @@ enum PaymentMethod {
   vnpay
   credit
   wallet
+  bank_transfer
 }
 
 enum PaymentStatus {

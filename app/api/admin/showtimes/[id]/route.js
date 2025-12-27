@@ -1,0 +1,73 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
+
+// PATCH - Cập nhật suất chiếu
+export async function PATCH(request, { params }) {
+  try {
+    const user = await getCurrentUser();
+    const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
+    if (!user || !isAdminOrStaff) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { start_time, base_price, language, subtitle, status } = body;
+
+    const updateData = {};
+    if (base_price !== undefined) updateData.base_price = base_price;
+    if (language !== undefined) updateData.language = language;
+    if (subtitle !== undefined) updateData.subtitle = subtitle;
+    if (status) updateData.status = status;
+
+    if (start_time) {
+      const showtime = await prisma.showtimes.findUnique({
+        where: { id: BigInt(id) },
+        include: { movie: true }
+      });
+      const startDate = new Date(start_time);
+      const endDate = new Date(startDate.getTime() + (showtime.movie.duration_minutes || 120) * 60 * 1000);
+      updateData.start_time = startDate;
+      updateData.end_time = endDate;
+    }
+
+    const updated = await prisma.showtimes.update({
+      where: { id: BigInt(id) },
+      data: updateData
+    });
+
+    return NextResponse.json({ data: updated });
+  } catch (error) {
+    console.error("PATCH /api/admin/showtimes/[id] error:", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+
+// DELETE - Xóa suất chiếu
+export async function DELETE(request, { params }) {
+  try {
+    const user = await getCurrentUser();
+    const isAdmin = user?.roles?.includes("admin");
+    if (!user || !isAdmin) {
+      return NextResponse.json({ error: "Chỉ admin mới có quyền xóa" }, { status: 403 });
+    }
+
+    const { id } = await params;
+    
+    // Check if there are any bookings
+    const bookings = await prisma.bookings.count({ where: { showtime_id: BigInt(id) } });
+    if (bookings > 0) {
+      return NextResponse.json({ error: "Không thể xóa suất chiếu đã có đặt vé" }, { status: 400 });
+    }
+
+    await prisma.showtimes.delete({ where: { id: BigInt(id) } });
+
+    return NextResponse.json({ message: "Đã xóa suất chiếu" });
+  } catch (error) {
+    console.error("DELETE /api/admin/showtimes/[id] error:", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+
+
