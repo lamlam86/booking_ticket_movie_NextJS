@@ -24,6 +24,7 @@ const BASE_NAV_SECTIONS = [
     title: 'Vận hành',
     items: [
       { label: 'Đơn hàng / Vé', href: '/admin/orders' },
+      { label: 'Quét vé QR', href: '/admin/scan-ticket' },
       { label: 'Khách hàng', href: '/admin/customers' },
     ],
   },

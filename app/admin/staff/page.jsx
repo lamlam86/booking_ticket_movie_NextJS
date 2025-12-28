@@ -1,9 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function StaffManagementPage() {
+  const router = useRouter();
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -18,8 +21,24 @@ export default function StaffManagementPage() {
   const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
-    fetchStaff();
-  }, []);
+    // Check if user is admin
+    async function checkAdmin() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+        if (data.success && data.user?.roles?.includes("admin")) {
+          setIsAdmin(true);
+          fetchStaff();
+        } else {
+          // Not admin, redirect to main admin page
+          router.push("/admin");
+        }
+      } catch (err) {
+        router.push("/admin");
+      }
+    }
+    checkAdmin();
+  }, [router]);
 
   async function fetchStaff() {
     try {
@@ -131,6 +150,15 @@ export default function StaffManagementPage() {
     s.full_name.toLowerCase().includes(search.toLowerCase()) ||
     s.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Show loading while checking admin status
+  if (!isAdmin) {
+    return (
+      <div className="admin-loading">
+        <p>Đang kiểm tra quyền truy cập...</p>
+      </div>
+    );
+  }
 
   return (
       <div className="admin-page">
