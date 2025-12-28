@@ -35,7 +35,7 @@ export default function AdminPromotionsPage() {
 
   async function fetchPromotions() {
     try {
-      const res = await fetch("/api/admin/promotions");
+      const res = await fetch(`/api/admin/promotions?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setPromotions(data.data || []);
     } catch (err) {

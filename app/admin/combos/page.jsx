@@ -30,7 +30,7 @@ export default function AdminCombosPage() {
 
   async function fetchCombos() {
     try {
-      const res = await fetch("/api/admin/combos");
+      const res = await fetch(`/api/admin/combos?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setCombos(data.data || []);
     } catch (err) {

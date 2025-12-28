@@ -22,7 +22,7 @@ export default function AdminCinemasPage() {
 
   async function fetchCinemas() {
     try {
-      const res = await fetch("/api/admin/cinemas");
+      const res = await fetch(`/api/admin/cinemas?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setCinemas(data.data || []);
     } catch (err) {

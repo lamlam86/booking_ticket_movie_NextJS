@@ -23,7 +23,7 @@ export default function AdminManagementPage() {
 
   async function fetchAdmins() {
     try {
-      const res = await fetch("/api/admin/users?role=admin");
+      const res = await fetch(`/api/admin/users?role=admin&_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setAdmins(data.users || []);
     } catch (err) {

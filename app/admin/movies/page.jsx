@@ -39,7 +39,7 @@ export default function AdminMoviesPage() {
   const fetchMovies = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/movies');
+      const res = await fetch(`/api/movies?_t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Fetch failed');
       const payload = await res.json();
       setMovies(payload.data ?? []);
@@ -180,7 +180,8 @@ export default function AdminMoviesPage() {
     try {
       const res = await fetch(`/api/movies/${movieId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
-      fetchMovies();
+      setMovies(prev => prev.filter(m => m.id !== movieId));
+      resetFlash({ type: 'success', message: 'Đã xóa phim!' });
     } catch (error) {
       resetFlash({ type: 'error', message: 'Không thể xóa phim.' });
     }

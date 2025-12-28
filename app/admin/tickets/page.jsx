@@ -40,7 +40,8 @@ export default function AdminTicketsPage() {
     try {
       const params = new URLSearchParams();
       if (filters.date) params.append("date", filters.date);
-      const res = await fetch(`/api/admin/showtimes?${params}`);
+      params.append("_t", Date.now());
+      const res = await fetch(`/api/admin/showtimes?${params}`, { cache: 'no-store' });
       const data = await res.json();
       setShowtimes(data.data || []);
     } catch (err) {
@@ -55,7 +56,7 @@ export default function AdminTicketsPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/tickets?showtime_id=${showtimeId}`);
+      const res = await fetch(`/api/admin/tickets?showtime_id=${showtimeId}&_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (res.ok) {
         setTicketData(data.data);

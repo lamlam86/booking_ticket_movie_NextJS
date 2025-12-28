@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // Tạo mã đặt vé ngẫu nhiên
 function generateBookingCode() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

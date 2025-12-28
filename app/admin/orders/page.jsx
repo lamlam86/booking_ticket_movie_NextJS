@@ -39,7 +39,7 @@ export default function AdminOrdersPage() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/orders?status=${filter}&page=${pagination.page}`);
+      const res = await fetch(`/api/admin/orders?status=${filter}&page=${pagination.page}&_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setOrders(data.data || []);
       setPagination(prev => ({ ...prev, ...data.pagination }));

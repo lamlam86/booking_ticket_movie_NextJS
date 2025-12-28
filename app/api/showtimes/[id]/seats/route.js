@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET - Lấy danh sách ghế và trạng thái đã đặt cho 1 suất chiếu
 export async function GET(request, { params }) {
   try {
