@@ -16,6 +16,7 @@ export default function AdminShowtimesPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ movie_id: "", branch_id: "", date: new Date().toISOString().split("T")[0] });
   const [showModal, setShowModal] = useState(false);
+  const [editingShowtime, setEditingShowtime] = useState(null);
   const [formData, setFormData] = useState({
     movie_id: "", screen_id: "", start_time: "", base_price: 65000, language: "Tiếng Việt", subtitle: ""
   });
@@ -69,7 +70,25 @@ export default function AdminShowtimesPage() {
   }
 
   function openCreateModal() {
+    setEditingShowtime(null);
     setFormData({ movie_id: "", screen_id: "", start_time: "", base_price: 65000, language: "Tiếng Việt", subtitle: "" });
+    setShowModal(true);
+  }
+
+  async function openEditModal(showtime) {
+    setEditingShowtime(showtime);
+    const branch = branches.find(b => b.id === showtime.branch.id);
+    setScreens(branch?.screens || []);
+    const startTime = new Date(showtime.start_time);
+    const localTime = new Date(startTime.getTime() - startTime.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setFormData({
+      movie_id: showtime.movie.id.toString(),
+      screen_id: showtime.screen.id.toString(),
+      start_time: localTime,
+      base_price: showtime.base_price,
+      language: showtime.language || "Tiếng Việt",
+      subtitle: showtime.subtitle || ""
+    });
     setShowModal(true);
   }
 
@@ -79,13 +98,15 @@ export default function AdminShowtimesPage() {
     setMessage({ type: "", text: "" });
 
     try {
-      const res = await fetch("/api/admin/showtimes", {
-        method: "POST",
+      const url = editingShowtime ? `/api/admin/showtimes/${editingShowtime.id}` : "/api/admin/showtimes";
+      const method = editingShowtime ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
       if (!res.ok) throw new Error((await res.json()).error);
-      setMessage({ type: "success", text: "Tạo suất chiếu thành công!" });
+      setMessage({ type: "success", text: editingShowtime ? "Cập nhật thành công!" : "Tạo suất chiếu thành công!" });
       fetchShowtimes();
       setTimeout(() => setShowModal(false), 1000);
     } catch (err) {
@@ -242,7 +263,14 @@ export default function AdminShowtimesPage() {
                         </select>
                       </td>
                       <td>
-                        <div className="admin-actions">
+                        <div className="admin-actions" style={{flexDirection: 'row', gap: '8px'}}>
+                          <button
+                            className="admin-action-btn"
+                            onClick={() => openEditModal(showtime)}
+                            title="Sửa"
+                          >
+                            ✏️
+                          </button>
                           <button
                             className="admin-action-btn admin-action-btn--danger"
                             onClick={() => handleDelete(showtime)}
@@ -261,12 +289,12 @@ export default function AdminShowtimesPage() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {/* Create/Edit Modal */}
         {showModal && (
           <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
             <div className="admin-modal" onClick={e => e.stopPropagation()} style={{maxWidth: 500}}>
               <div className="admin-modal__header">
-                <h2>Thêm suất chiếu mới</h2>
+                <h2>{editingShowtime ? "Chỉnh sửa suất chiếu" : "Thêm suất chiếu mới"}</h2>
                 <button className="admin-modal__close" onClick={() => setShowModal(false)}>×</button>
               </div>
               
@@ -325,7 +353,7 @@ export default function AdminShowtimesPage() {
                 <div className="admin-modal__footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Hủy</button>
                   <button type="submit" className="btn btn-primary" disabled={saving}>
-                    {saving ? "Đang lưu..." : "Tạo suất chiếu"}
+                    {saving ? "Đang lưu..." : (editingShowtime ? "Cập nhật" : "Tạo suất chiếu")}
                   </button>
                 </div>
               </form>
