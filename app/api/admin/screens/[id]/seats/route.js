@@ -53,15 +53,6 @@ export async function POST(request, { params }) {
         if (row >= screen.seat_rows - 1) {
           seatType = "vip";
         }
-        
-        // Middle seats in last row can be couple seats (if even number of cols)
-        if (row === screen.seat_rows && screen.seat_cols >= 4) {
-          const middleStart = Math.floor(screen.seat_cols / 2) - 1;
-          const middleEnd = Math.ceil(screen.seat_cols / 2) + 1;
-          if (col >= middleStart && col <= middleEnd) {
-            seatType = "couple";
-          }
-        }
 
         seats.push({
           screen_id: screenId,
