@@ -108,13 +108,25 @@ model showtimes {
   screen_id   Int
   start_time  DateTime
   end_time    DateTime
-  base_price  Decimal
   language    String?
   subtitle    String?
   status      ShowtimeStatus @default(scheduled)
   movie       movies         @relation(fields: [movie_id], references: [id], onDelete: Cascade)
   screen      screens        @relation(fields: [screen_id], references: [id], onDelete: Cascade)
   bookings    bookings[]
+}
+
+model ticket_prices {
+  id          Int        @id @default(autoincrement())
+  screen_type ScreenType
+  seat_type   SeatType
+  day_type    DayType    @default(weekday)
+  price       Decimal
+  is_active   Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  @@unique([screen_type, seat_type, day_type])
 }
 
 model bookings {
