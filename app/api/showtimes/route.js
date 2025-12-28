@@ -74,7 +74,6 @@ export async function GET(request) {
         id: Number(st.id),
         start_time: st.start_time,
         end_time: st.end_time,
-        base_price: Number(st.base_price),
         screen_id: st.screen_id,
         screen_name: st.screen.name,
         screen: {
@@ -100,6 +99,9 @@ export async function GET(request) {
           language: st.movie.language,
           country: st.movie.country,
         },
+        status: st.status,
+        language: st.language,
+        subtitle: st.subtitle,
       })),
     });
   } catch (error) {

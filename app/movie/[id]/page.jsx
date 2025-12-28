@@ -53,7 +53,8 @@ export default function MovieDetailPage() {
   // Data from API
   const [seats, setSeats] = useState({});
   const [screenInfo, setScreenInfo] = useState(null);
-  const [basePrice, setBasePrice] = useState(45000);
+  const [basePrice, setBasePrice] = useState(65000);
+  const [priceMap, setPriceMap] = useState({});
   const [concessionList, setConcessionList] = useState({ combos: [], drinks: [] });
   const [bookingLoading, setBookingLoading] = useState(false);
 
@@ -127,7 +128,8 @@ export default function MovieDetailPage() {
       if (data.seats) {
         setSeats(data.seats);
         setScreenInfo(data.screen);
-        setBasePrice(data.base_price || 45000);
+        setBasePrice(data.base_price || 65000);
+        setPriceMap(data.price_map || {});
       }
     } catch (err) {
       console.error(err);
@@ -217,6 +219,11 @@ export default function MovieDetailPage() {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
+  // Lấy giá vé theo loại ghế
+  const getSeatPrice = (seatType) => {
+    return priceMap[seatType] || priceMap["standard"] || basePrice;
+  };
+
   const getSeatClass = (seat) => {
     let classes = ["seat"];
     classes.push(`seat--${seat.seat_type}`);
@@ -261,12 +268,12 @@ export default function MovieDetailPage() {
         branch: selectedShowtime.screen?.branch?.name || selectedShowtime.branch,
         screen: selectedShowtime.screen?.name || selectedShowtime.screen,
       },
-      // Store both labels for display and IDs for API
-      seats: selectedSeats.map(s => s.label || `${s.row}${s.seat_number}`),
+      // Store both labels for display and IDs for API with individual seat prices
+      seats: selectedSeats.map(s => s.label || s.seat_code || `${s.seat_row}${s.seat_number}`),
       seatData: selectedSeats.map(s => ({
         seat_id: s.id,
-        price: basePrice,
-        label: s.label || `${s.row}${s.seat_number}`,
+        price: getSeatPrice(s.seat_type),
+        label: s.label || s.seat_code || `${s.seat_row}${s.seat_number}`,
       })),
       concessions: concessions,
       concessionItems: [...concessionList.combos, ...concessionList.drinks],
@@ -291,7 +298,7 @@ export default function MovieDetailPage() {
 
     if (!selectedShowtime || selectedSeats.length !== totalTickets) return;
 
-    // Build and add cart item
+    // Build and add cart item with individual seat prices
     const cartItem = {
       movie: {
         id: movie.id,
@@ -306,11 +313,11 @@ export default function MovieDetailPage() {
         branch: selectedShowtime.screen?.branch?.name || selectedShowtime.branch,
         screen: selectedShowtime.screen?.name || selectedShowtime.screen,
       },
-      seats: selectedSeats.map(s => s.label || `${s.row}${s.seat_number}`),
+      seats: selectedSeats.map(s => s.label || s.seat_code || `${s.seat_row}${s.seat_number}`),
       seatData: selectedSeats.map(s => ({
         seat_id: s.id,
-        price: basePrice,
-        label: s.label || `${s.row}${s.seat_number}`,
+        price: getSeatPrice(s.seat_type),
+        label: s.label || s.seat_code || `${s.seat_row}${s.seat_number}`,
       })),
       concessions: concessions,
       concessionItems: [...concessionList.combos, ...concessionList.drinks],

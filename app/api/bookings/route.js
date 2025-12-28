@@ -60,10 +60,10 @@ export async function POST(request) {
       );
     }
 
-    // Tính tổng tiền vé
+    // Tính tổng tiền vé - price được truyền từ frontend (lấy từ ticket_prices)
     const seatPrices = seats.map((s) => ({
       seat_id: s.seat_id,
-      price: s.price || Number(showtime.base_price),
+      price: s.price || 65000, // Giá mặc định nếu không có
     }));
     const ticketSubtotal = seatPrices.reduce((sum, s) => sum + s.price, 0);
 

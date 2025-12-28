@@ -70,8 +70,10 @@ export function CartProvider({ children }) {
   const getCartTotal = () => {
     return cart.reduce((total, item) => {
       if (item.type === 'ticket') {
-        // Movie tickets
-        const ticketTotal = (item.seats?.length || 0) * (item.showtime?.base_price || 0);
+        // Movie tickets - use seatData prices if available
+        const ticketTotal = item.seatData 
+          ? item.seatData.reduce((sum, s) => sum + (s.price || 65000), 0)
+          : (item.seats?.length || 0) * (item.showtime?.base_price || 65000);
         const concessionTotal = Object.entries(item.concessions || {}).reduce((sum, [id, qty]) => {
           const concession = item.concessionItems?.find(c => c.id === Number(id));
           return sum + (concession ? concession.price * qty : 0);
