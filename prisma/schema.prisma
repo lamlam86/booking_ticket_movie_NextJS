@@ -265,17 +265,11 @@ enum BranchStatus {
 
 enum ScreenType {
   standard
-  vip
-  imax
-  dx4 @map("4dx")
-  premium
 }
 
 enum SeatType {
   standard
   vip
-  couple
-  disabled
 }
 
 enum ShowtimeStatus {
