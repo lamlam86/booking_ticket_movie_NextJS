@@ -178,20 +178,6 @@ export default function AdminMoviesPage() {
     }
   };
 
-  const handleFeatureToggle = async (movieId, next) => {
-    try {
-      const res = await fetch(`/api/movies/${movieId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isFeatured: next }),
-      });
-      if (!res.ok) throw new Error();
-      fetchMovies();
-    } catch (error) {
-      resetFlash({ type: 'error', message: 'Không thể cập nhật.' });
-    }
-  };
-
   const handleDelete = async (movieId) => {
     if (!confirm('Bạn chắc chắn muốn xóa phim này?')) return;
     try {
@@ -304,13 +290,6 @@ export default function AdminMoviesPage() {
                     <td>{movie.soldTickets?.toLocaleString() || 0}</td>
                     <td>
                       <div className="admin-actions">
-                        <button
-                          className={`admin-chip ${movie.isFeatured ? 'admin-chip--active' : ''}`}
-                          onClick={() => handleFeatureToggle(movie.id, !movie.isFeatured)}
-                          title={movie.isFeatured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
-                        >
-                          ⭐
-                        </button>
                         <button className="admin-action-btn" onClick={() => openEditModal(movie)} title="Sửa">
                           ✏️
                         </button>
