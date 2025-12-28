@@ -2,11 +2,7 @@
 import { useState, useEffect } from "react";
 
 const SCREEN_TYPES = {
-  standard: "Tiêu chuẩn",
-  vip: "VIP",
-  imax: "IMAX",
-  dx4: "4DX",
-  premium: "Premium"
+  standard: "Phòng chiếu"
 };
 
 const SEAT_TYPES = {
@@ -123,14 +119,6 @@ export default function AdminTicketPricesPage() {
         <div className="admin-stack" style={{ gap: 24 }}>
           {Object.entries(groupedPrices).map(([screenType, screenPrices]) => (
             <div key={screenType} className="admin-card" style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ 
-                padding: "12px 16px", 
-                background: "var(--primary)", 
-                color: "#fff",
-                fontWeight: 600 
-              }}>
-                🎬 Phòng chiếu: {SCREEN_TYPES[screenType] || screenType}
-              </div>
               <div className="admin-table-wrap">
                 <table className="admin-table">
                   <thead>
@@ -224,19 +212,6 @@ export default function AdminTicketPricesPage() {
             </div>
             
             <form onSubmit={handleAddPrice} className="admin-modal__body">
-              <div className="admin-form-group">
-                <label>Loại phòng chiếu *</label>
-                <select 
-                  value={newPrice.screen_type} 
-                  onChange={e => setNewPrice({...newPrice, screen_type: e.target.value})}
-                  required
-                >
-                  {Object.entries(SCREEN_TYPES).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
               <div className="admin-form-group">
                 <label>Loại ghế *</label>
                 <select 
