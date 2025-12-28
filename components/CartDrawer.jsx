@@ -3,12 +3,12 @@ import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 
 export default function CartDrawer() {
-  const { cart, isOpen, setIsOpen, removeFromCart, getCartTotal, getCartCount } = useCart();
+  const { cart, isOpen, setIsOpen, removeFromCart, getCartTotal, getCartCount, calculateItemTotal } = useCart();
 
   if (!isOpen) return null;
 
   const formatPrice = (price) => {
-    return price.toLocaleString("vi-VN") + "đ";
+    return Number(price).toLocaleString("vi-VN") + "đ";
   };
 
   const formatTime = (date) => {
@@ -24,22 +24,6 @@ export default function CartDrawer() {
       day: "2-digit",
       month: "2-digit"
     });
-  };
-
-  const calculateItemTotal = (item) => {
-    if (item.type === 'ticket') {
-      const ticketTotal = (item.seats?.length || 0) * (item.showtime?.base_price || 0);
-      const concessionTotal = Object.entries(item.concessions || {}).reduce((sum, [id, qty]) => {
-        const concession = item.concessionItems?.find(c => c.id === Number(id));
-        return sum + (concession ? concession.price * qty : 0);
-      }, 0);
-      return ticketTotal + concessionTotal;
-    } else if (item.type === 'concession') {
-      return item.total || 0;
-    } else if (item.type === 'event' || item.type === 'service') {
-      return item.price || 0;
-    }
-    return 0;
   };
 
   const renderCartItem = (item) => {

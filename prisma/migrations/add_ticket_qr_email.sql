@@ -9,3 +9,4 @@ ADD COLUMN email_sent_at DATETIME;
 
 
 
+

@@ -52,10 +52,26 @@ export default function AdminOrdersPage() {
 
   async function updateStatus(orderId, field, value) {
     try {
+      // Nếu cập nhật payment_status, tự động cập nhật status đơn hàng tương ứng
+      let updateData = { [field]: value };
+      
+      if (field === "payment_status") {
+        if (value === "paid") {
+          // Đã thanh toán -> Đã xác nhận
+          updateData.status = "confirmed";
+        } else if (value === "pending") {
+          // Chờ thanh toán -> Đã đặt
+          updateData.status = "reserved";
+        } else if (value === "failed" || value === "refunded") {
+          // Thất bại hoặc hoàn tiền -> giữ nguyên hoặc hủy
+          // Không tự động thay đổi status
+        }
+      }
+      
       await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: value })
+        body: JSON.stringify(updateData)
       });
       fetchOrders();
     } catch (err) {

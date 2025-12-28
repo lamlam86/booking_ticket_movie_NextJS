@@ -14,14 +14,17 @@ export async function POST(request) {
       );
     }
 
+    // Build where condition properly
+    const whereCondition = {};
+    if (transaction_id) {
+      whereCondition.transaction_id = transaction_id;
+    } else if (booking_id) {
+      whereCondition.booking_id = BigInt(booking_id);
+    }
+
     // Tìm payment
     const payment = await prisma.payments.findFirst({
-      where: {
-        OR: [
-          transaction_id ? { transaction_id } : {},
-          booking_id ? { booking_id: BigInt(booking_id) } : {},
-        ],
-      },
+      where: whereCondition,
       include: {
         booking: {
           include: {
@@ -123,15 +126,17 @@ export async function PUT(request) {
       );
     }
 
+    // Build where condition properly
+    const whereCondition = { status: "pending" };
+    if (transaction_id) {
+      whereCondition.transaction_id = transaction_id;
+    } else if (booking_id) {
+      whereCondition.booking_id = BigInt(booking_id);
+    }
+
     // Tìm payment
     const payment = await prisma.payments.findFirst({
-      where: {
-        OR: [
-          transaction_id ? { transaction_id } : {},
-          booking_id ? { booking_id: BigInt(booking_id) } : {},
-        ],
-        status: "pending",
-      },
+      where: whereCondition,
       include: {
         booking: true,
       },
