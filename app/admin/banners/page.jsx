@@ -65,6 +65,16 @@ export default function AdminBannersPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     
+    if (!formData.title.trim()) {
+      setMessage({ type: "error", text: "Vui lòng nhập tiêu đề" });
+      return;
+    }
+    
+    if (!formData.image_url.trim()) {
+      setMessage({ type: "error", text: "Vui lòng nhập URL hình ảnh" });
+      return;
+    }
+    
     try {
       const url = editingBanner 
         ? `/api/admin/banners/${editingBanner.id}`
@@ -76,8 +86,9 @@ export default function AdminBannersPage() {
         body: JSON.stringify(formData)
       });
 
+      const data = await res.json();
+      
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || "Lỗi thao tác");
       }
 
@@ -88,6 +99,7 @@ export default function AdminBannersPage() {
       setShowModal(false);
       fetchBanners();
     } catch (err) {
+      console.error("Submit error:", err);
       setMessage({ type: "error", text: err.message });
     }
     

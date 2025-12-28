@@ -6,10 +6,18 @@ export const dynamic = 'force-dynamic';
 // GET - Lấy danh sách banner đang hoạt động (cho người dùng)
 export async function GET() {
   try {
-    const banners = await prisma.banners.findMany({
-      where: { is_active: true },
-      orderBy: { position: "asc" }
-    });
+    // Check if banners table exists
+    let banners = [];
+    try {
+      banners = await prisma.banners.findMany({
+        where: { is_active: true },
+        orderBy: { position: "asc" }
+      });
+    } catch (dbError) {
+      // Table might not exist yet, return empty array
+      console.log("Banners table not ready:", dbError.message);
+      return NextResponse.json({ banners: [] });
+    }
 
     return NextResponse.json({
       banners: banners.map(b => ({
@@ -22,6 +30,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/banners error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ banners: [] });
   }
 }
