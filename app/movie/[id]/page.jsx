@@ -140,6 +140,11 @@ export default function MovieDetailPage() {
   // Số ghế đã chọn
   const totalTickets = selectedSeats.length;
 
+  // Lấy giá vé theo loại ghế
+  const getSeatPrice = useCallback((seatType) => {
+    return priceMap[seatType] || priceMap["standard"] || basePrice;
+  }, [priceMap, basePrice]);
+
   // Calculate totals - based on seat type prices
   const totals = useMemo(() => {
     // Tính tổng tiền vé theo loại ghế
@@ -159,7 +164,7 @@ export default function MovieDetailPage() {
       concessions: concessionTotal,
       total: ticketTotal + concessionTotal,
     };
-  }, [selectedSeats, concessions, concessionList, priceMap, basePrice]);
+  }, [selectedSeats, concessions, concessionList, getSeatPrice]);
 
   const handleSeatClick = (seat) => {
     if (seat.status === "booked") return;
@@ -192,11 +197,6 @@ export default function MovieDetailPage() {
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + " VND";
-  };
-
-  // Lấy giá vé theo loại ghế
-  const getSeatPrice = (seatType) => {
-    return priceMap[seatType] || priceMap["standard"] || basePrice;
   };
 
   const getSeatClass = (seat) => {
