@@ -23,7 +23,7 @@ export default function StaffManagementPage() {
 
   async function fetchStaff() {
     try {
-      const res = await fetch("/api/admin/users?role=staff");
+      const res = await fetch(`/api/admin/users?role=staff&_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setStaff(data.users || []);
     } catch (err) {

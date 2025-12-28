@@ -79,7 +79,7 @@ export default function MovieDetailPage() {
   useEffect(() => {
     async function fetchMovie() {
       try {
-        const res = await fetch(`/api/movies/${params.id}`);
+        const res = await fetch(`/api/movies/${params.id}?_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.movie) {
           setMovie(data.movie);
@@ -122,7 +122,7 @@ export default function MovieDetailPage() {
   // Fetch seats when showtime is selected
   const fetchSeats = useCallback(async (showtimeId) => {
     try {
-      const res = await fetch(`/api/showtimes/${showtimeId}/seats`);
+      const res = await fetch(`/api/showtimes/${showtimeId}/seats?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.seats) {
         setSeats(data.seats);

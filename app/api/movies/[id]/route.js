@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const toISODate = (value) => (value ? value.toISOString().split('T')[0] : '');
 
 const mapMovie = async (movie) => {

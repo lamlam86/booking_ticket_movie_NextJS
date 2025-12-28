@@ -15,7 +15,7 @@ export default function AdminCustomersPage() {
   async function fetchCustomers() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/users?role=customer&page=${pagination.page}&search=${search}`);
+      const res = await fetch(`/api/admin/users?role=customer&page=${pagination.page}&search=${search}&_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setCustomers(data.users || []);
       setPagination(prev => ({ ...prev, ...data.pagination }));

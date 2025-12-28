@@ -43,7 +43,7 @@ export default function AdminTicketPricesPage() {
   async function fetchPrices() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/ticket-prices");
+      const res = await fetch(`/api/admin/ticket-prices?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setPrices(data.data || []);
     } catch (err) {

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hashPassword } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Lấy chi tiết user
 export async function GET(request, { params }) {
   try {
