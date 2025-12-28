@@ -43,9 +43,9 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const user = await getCurrentUser();
-    const isAdmin = user?.roles?.includes("admin");
-    if (!user || !isAdmin) {
-      return NextResponse.json({ error: "Chỉ admin mới có quyền" }, { status: 403 });
+    const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
+    if (!user || !isAdminOrStaff) {
+      return NextResponse.json({ error: "Không có quyền truy cập" }, { status: 403 });
     }
 
     const { id } = await params;

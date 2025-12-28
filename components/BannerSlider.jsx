@@ -8,15 +8,37 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+// Default static banners
+const DEFAULT_BANNERS = [
+  { 
+    id: 1, 
+    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/9/8/980x448_u22_1_.jpg", 
+    name: "LMK Cinema - Khuyến mãi U22",
+    link: "/chuong-trinh-khuyen-mai"
+  },
+  { 
+    id: 2, 
+    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/c/o/combo_2nguoi_980x448.jpg", 
+    name: "Combo Bắp Nước",
+    link: "/popcorn-drink"
+  },
+  { 
+    id: 3, 
+    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/h/o/home_-_main_banner_-_980wx448h_28_.jpg", 
+    name: "Phim Hot",
+    link: "/movie"
+  },
+];
+
 export default function BannerSlider() {
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState(DEFAULT_BANNERS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchBanners() {
       try {
         // Fetch banners from database first
-        const bannerRes = await fetch("/api/banners");
+        const bannerRes = await fetch("/api/banners?_t=" + Date.now(), { cache: 'no-store' });
         const bannerData = await bannerRes.json();
         
         if (bannerData.banners && bannerData.banners.length > 0) {
@@ -29,33 +51,29 @@ export default function BannerSlider() {
             isCustomBanner: true
           })));
         } else {
-          // Fallback to featured movies if no banners
-          const movieRes = await fetch("/api/movies/featured");
-          const movieData = await movieRes.json();
-          
-          if (movieData.movies && movieData.movies.length > 0) {
-            setBanners(movieData.movies.map(m => ({
-              id: m.id,
-              media: m.backdrop_url || m.poster_url,
-              name: m.title,
-              link: `/movie/${m.id}`,
-              isMovie: true
-            })));
-          } else {
-            // Final fallback to static banners
-            setBanners([
-              { id: 1, media: "/assets/images/banner-web.jpg", name: "LMK Cinema" },
-              { id: 2, media: "/assets/images/web-banner-chung.jpg", name: "Khuyến mãi" },
-            ]);
+          // Fallback to featured movies if no banners in DB
+          try {
+            const movieRes = await fetch("/api/movies/featured");
+            const movieData = await movieRes.json();
+            
+            if (movieData.movies && movieData.movies.length > 0) {
+              setBanners(movieData.movies.map(m => ({
+                id: m.id,
+                media: m.backdrop_url || m.poster_url,
+                name: m.title,
+                link: `/movie/${m.id}`,
+                isMovie: true
+              })));
+            }
+            // If no movies, keep DEFAULT_BANNERS
+          } catch (movieErr) {
+            console.log("Using default banners");
+            // Keep DEFAULT_BANNERS
           }
         }
       } catch (err) {
-        console.error(err);
-        // Fallback to static banners on error
-        setBanners([
-          { id: 1, media: "/assets/images/banner-web.jpg", name: "LMK Cinema" },
-          { id: 2, media: "/assets/images/web-banner-chung.jpg", name: "Khuyến mãi" },
-        ]);
+        console.log("Banner fetch error, using defaults");
+        // Keep DEFAULT_BANNERS on error
       } finally {
         setLoading(false);
       }
