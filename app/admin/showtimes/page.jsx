@@ -54,7 +54,7 @@ export default function AdminShowtimesPage() {
       if (filters.branch_id) params.append("branch_id", filters.branch_id);
       if (filters.date) params.append("date", filters.date);
       
-      const res = await fetch(`/api/admin/showtimes?${params}`);
+      const res = await fetch(`/api/admin/showtimes?${params}`, { cache: 'no-store' });
       const data = await res.json();
       setShowtimes(data.data || []);
     } catch (err) {
@@ -120,8 +120,10 @@ export default function AdminShowtimesPage() {
     
     try {
       const res = await fetch(`/api/admin/showtimes/${showtime.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error);
-      fetchShowtimes();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert("Đã xóa suất chiếu thành công!");
+      await fetchShowtimes();
     } catch (err) {
       alert(err.message);
     }
@@ -129,12 +131,13 @@ export default function AdminShowtimesPage() {
 
   async function updateStatus(showtime, newStatus) {
     try {
-      await fetch(`/api/admin/showtimes/${showtime.id}`, {
+      const res = await fetch(`/api/admin/showtimes/${showtime.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus })
       });
-      fetchShowtimes();
+      if (!res.ok) throw new Error((await res.json()).error);
+      await fetchShowtimes();
     } catch (err) {
       alert(err.message);
     }
