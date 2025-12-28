@@ -10,6 +10,7 @@ export default function MyTicketsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
   useEffect(() => {
     async function fetchBookings() {
@@ -54,6 +55,38 @@ export default function MyTicketsPage() {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
+  // Generate QR code URL with ticket info
+  const getQRCodeUrl = (booking) => {
+    const ticketInfo = JSON.stringify({
+      code: booking.booking_code,
+      movie: booking.movie,
+      showtime: booking.showtime,
+      seats: booking.seats.join(", "),
+      branch: booking.branch,
+      screen: booking.screen
+    });
+    
+    // Use QR Server API to generate QR code
+    const qrData = encodeURIComponent(ticketInfo);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`;
+  };
+
+  // Generate larger QR for modal
+  const getLargeQRCodeUrl = (booking) => {
+    const ticketInfo = JSON.stringify({
+      code: booking.booking_code,
+      movie: booking.movie,
+      showtime: booking.showtime,
+      seats: booking.seats.join(", "),
+      branch: booking.branch,
+      screen: booking.screen,
+      total: booking.total_amount
+    });
+    
+    const qrData = encodeURIComponent(ticketInfo);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
+  };
+
   const now = new Date();
   const upcomingBookings = bookings.filter(b => new Date(b.showtime) > now);
   const pastBookings = bookings.filter(b => new Date(b.showtime) <= now);
@@ -61,30 +94,22 @@ export default function MyTicketsPage() {
   const displayedBookings = activeTab === "upcoming" ? upcomingBookings : pastBookings;
 
   const getStatusColor = (booking) => {
-    // Check payment_status first
     if (booking.payment_status === "paid") return "green";
     if (booking.payment_status === "refunded") return "blue";
     if (booking.payment_status === "failed") return "red";
-    
-    // Then check booking status
     if (booking.status === "confirmed") return "green";
     if (booking.status === "cancelled") return "red";
     if (booking.status === "reserved") return "yellow";
-    
     return "gray";
   };
 
   const getStatusText = (booking) => {
-    // Check payment_status first
     if (booking.payment_status === "paid") return "Đã thanh toán";
     if (booking.payment_status === "refunded") return "Đã hoàn tiền";
     if (booking.payment_status === "failed") return "Thanh toán thất bại";
-    
-    // Then check booking status
     if (booking.status === "confirmed") return "Đã xác nhận";
     if (booking.status === "cancelled") return "Đã hủy";
     if (booking.status === "reserved") return "Chờ thanh toán";
-    
     return booking.status;
   };
 
@@ -117,7 +142,7 @@ export default function MyTicketsPage() {
           ) : displayedBookings.length > 0 ? (
             <div className="tickets-list">
               {displayedBookings.map(booking => (
-                <div key={booking.id} className="ticket-card">
+                <div key={booking.id} className="ticket-card ticket-card--with-qr">
                   <div className="ticket-card__poster">
                     {booking.poster ? (
                       <img src={booking.poster} alt={booking.movie} />
@@ -176,6 +201,20 @@ export default function MyTicketsPage() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* QR Code */}
+                  <div 
+                    className="ticket-card__qr"
+                    onClick={() => setSelectedTicket(booking)}
+                    title="Nhấn để phóng to"
+                  >
+                    <img 
+                      src={getQRCodeUrl(booking)} 
+                      alt="QR Code" 
+                      className="ticket-qr-image"
+                    />
+                    <span className="ticket-qr-label">Quét mã</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -192,8 +231,44 @@ export default function MyTicketsPage() {
         </div>
       </main>
       <Footer />
+
+      {/* QR Code Modal */}
+      {selectedTicket && (
+        <div className="qr-modal-overlay" onClick={() => setSelectedTicket(null)}>
+          <div className="qr-modal" onClick={e => e.stopPropagation()}>
+            <button className="qr-modal__close" onClick={() => setSelectedTicket(null)}>×</button>
+            
+            <div className="qr-modal__content">
+              <h2 className="qr-modal__title">Mã QR Vé xem phim</h2>
+              
+              <div className="qr-modal__qr-wrap">
+                <img 
+                  src={getLargeQRCodeUrl(selectedTicket)} 
+                  alt="QR Code" 
+                  className="qr-modal__qr-image"
+                />
+              </div>
+
+              <div className="qr-modal__info">
+                <div className="qr-modal__movie">{selectedTicket.movie}</div>
+                <div className="qr-modal__code">Mã vé: <strong>{selectedTicket.booking_code}</strong></div>
+                
+                <div className="qr-modal__details">
+                  <p>📅 {formatDate(selectedTicket.showtime)}</p>
+                  <p>🕐 {formatTime(selectedTicket.showtime)}</p>
+                  <p>📍 {selectedTicket.branch} - {selectedTicket.screen}</p>
+                  <p>💺 Ghế: {selectedTicket.seats.join(", ")}</p>
+                  <p>💰 {formatPrice(selectedTicket.total_amount)}</p>
+                </div>
+
+                <p className="qr-modal__note">
+                  Đưa mã QR này cho nhân viên để vào rạp
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
