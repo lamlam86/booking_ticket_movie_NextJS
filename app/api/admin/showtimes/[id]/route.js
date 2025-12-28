@@ -36,7 +36,18 @@ export async function PATCH(request, { params }) {
       data: updateData
     });
 
-    return NextResponse.json({ data: updated });
+    return NextResponse.json({ 
+      data: {
+        id: Number(updated.id),
+        movie_id: Number(updated.movie_id),
+        screen_id: updated.screen_id,
+        start_time: updated.start_time,
+        end_time: updated.end_time,
+        language: updated.language,
+        subtitle: updated.subtitle,
+        status: updated.status
+      }
+    });
   } catch (error) {
     console.error("PATCH /api/admin/showtimes/[id] error:", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
