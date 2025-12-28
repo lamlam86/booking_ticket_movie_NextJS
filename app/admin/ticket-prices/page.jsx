@@ -14,11 +14,6 @@ const SEAT_TYPES = {
   vip: "Ghế VIP"
 };
 
-const DAY_TYPES = {
-  weekday: "Ngày thường",
-  weekend: "Cuối tuần",
-  holiday: "Lễ/Tết"
-};
 
 export default function AdminTicketPricesPage() {
   const [prices, setPrices] = useState([]);
@@ -29,7 +24,6 @@ export default function AdminTicketPricesPage() {
   const [newPrice, setNewPrice] = useState({
     screen_type: "standard",
     seat_type: "standard",
-    day_type: "weekday",
     price: 65000
   });
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -92,7 +86,7 @@ export default function AdminTicketPricesPage() {
       if (!res.ok) throw new Error((await res.json()).error);
       setMessage({ type: "success", text: "Thêm giá vé thành công!" });
       setShowAddModal(false);
-      setNewPrice({ screen_type: "standard", seat_type: "standard", day_type: "weekday", price: 65000 });
+      setNewPrice({ screen_type: "standard", seat_type: "standard", price: 65000 });
       fetchPrices();
     } catch (err) {
       setMessage({ type: "error", text: err.message });
@@ -142,7 +136,6 @@ export default function AdminTicketPricesPage() {
                   <thead>
                     <tr>
                       <th>Loại ghế</th>
-                      <th>Ngày</th>
                       <th>Giá vé</th>
                       <th>Trạng thái</th>
                       <th>Thao tác</th>
@@ -152,7 +145,6 @@ export default function AdminTicketPricesPage() {
                     {screenPrices.map(price => (
                       <tr key={price.id}>
                         <td><strong>{SEAT_TYPES[price.seatType] || price.seatType}</strong></td>
-                        <td>{DAY_TYPES[price.dayType] || price.dayType}</td>
                         <td>
                           {editingId === price.id ? (
                             <input
@@ -253,19 +245,6 @@ export default function AdminTicketPricesPage() {
                   required
                 >
                   {Object.entries(SEAT_TYPES).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="admin-form-group">
-                <label>Loại ngày *</label>
-                <select 
-                  value={newPrice.day_type} 
-                  onChange={e => setNewPrice({...newPrice, day_type: e.target.value})}
-                  required
-                >
-                  {Object.entries(DAY_TYPES).map(([k, v]) => (
                     <option key={k} value={k}>{v}</option>
                   ))}
                 </select>

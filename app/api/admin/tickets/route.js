@@ -4,11 +4,6 @@ import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
-// Helper to get day type
-function getDayTypeForGet(date) {
-  const day = date.getDay();
-  return (day === 0 || day === 6) ? "weekend" : "weekday";
-}
 
 // GET - Lấy danh sách vé theo suất chiếu
 export async function GET(request) {
@@ -53,14 +48,12 @@ export async function GET(request) {
       return NextResponse.json({ error: "Không tìm thấy suất chiếu" }, { status: 404 });
     }
 
-    // Get ticket prices for this screen type and day
+    // Get ticket prices for this screen type
     const screenType = showtime.screen.type;
-    const dayType = getDayTypeForGet(new Date(showtime.start_time));
     
     const ticketPrices = await prisma.ticket_prices.findMany({
       where: {
         screen_type: screenType,
-        day_type: dayType,
         is_active: true
       }
     });
@@ -109,7 +102,6 @@ export async function GET(request) {
           branch: { id: showtime.screen.branch.id, name: showtime.screen.branch.name },
           screen: { id: showtime.screen.id, name: showtime.screen.name, type: showtime.screen.type },
           startTime: showtime.start_time,
-          dayType: dayType,
           status: showtime.status
         },
         seats,
@@ -128,11 +120,6 @@ export async function GET(request) {
   }
 }
 
-// Helper to get day type
-function getDayType(date) {
-  const day = date.getDay();
-  return (day === 0 || day === 6) ? "weekend" : "weekday";
-}
 
 // POST - Tạo vé mới (đặt ghế)
 export async function POST(request) {
@@ -177,12 +164,10 @@ export async function POST(request) {
 
     // Get ticket prices from ticket_prices table
     const screenType = showtime.screen.type;
-    const dayType = getDayType(new Date(showtime.start_time));
     
     const ticketPrices = await prisma.ticket_prices.findMany({
       where: {
         screen_type: screenType,
-        day_type: dayType,
         is_active: true
       }
     });
