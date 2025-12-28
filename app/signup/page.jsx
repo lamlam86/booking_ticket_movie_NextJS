@@ -24,6 +24,11 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Success state
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState(null);
+  const [countdown, setCountdown] = useState(5);
+
   // Check if user is already logged in - redirect immediately
   useEffect(() => {
     async function checkAuth() {
@@ -32,7 +37,6 @@ export default function SignupPage() {
         const data = await res.json();
         
         if (data.success && data.user) {
-          // User is already logged in, redirect to home
           router.replace("/");
         }
       } catch (e) {
@@ -62,6 +66,18 @@ export default function SignupPage() {
       }
     };
   }, []);
+
+  // Countdown timer for redirect
+  useEffect(() => {
+    if (showSuccess && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (showSuccess && countdown === 0) {
+      router.push("/login");
+    }
+  }, [showSuccess, countdown, router]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -130,7 +146,13 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (data.success) {
-        router.push("/");
+        // Show success modal with user info
+        setRegisteredUser({
+          fullName: fullname.trim(),
+          email: email.trim(),
+          phone: phoneE164 || "Chưa cập nhật",
+        });
+        setShowSuccess(true);
       } else {
         setGeneralError(data.message);
       }
@@ -139,6 +161,10 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const goToLogin = () => {
+    router.push("/login");
   };
 
   return (
@@ -272,8 +298,50 @@ export default function SignupPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Success Modal */}
+      {showSuccess && registeredUser && (
+        <div className="signup-success-overlay">
+          <div className="signup-success-modal">
+            <div className="signup-success-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" fill="#22c55e" stroke="#22c55e"/>
+                <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            
+            <h2 className="signup-success-title">Đăng ký thành công!</h2>
+            <p className="signup-success-subtitle">Chào mừng bạn đến với LMK Cinema</p>
+
+            <div className="signup-success-info">
+              <div className="signup-info-row">
+                <span className="signup-info-label">👤 Họ tên</span>
+                <span className="signup-info-value">{registeredUser.fullName}</span>
+              </div>
+              <div className="signup-info-row">
+                <span className="signup-info-label">📧 Email</span>
+                <span className="signup-info-value">{registeredUser.email}</span>
+              </div>
+              <div className="signup-info-row">
+                <span className="signup-info-label">📱 Điện thoại</span>
+                <span className="signup-info-value">{registeredUser.phone}</span>
+              </div>
+            </div>
+
+            <p className="signup-success-note">
+              Bạn có thể đăng nhập ngay bằng email và mật khẩu đã đăng ký
+            </p>
+
+            <button className="signup-success-btn" onClick={goToLogin}>
+              Đăng nhập ngay
+            </button>
+
+            <p className="signup-success-countdown">
+              Tự động chuyển đến trang đăng nhập sau <strong>{countdown}</strong> giây
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }
-
-
