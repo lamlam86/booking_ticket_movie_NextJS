@@ -9,40 +9,59 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function BannerSlider() {
-  const [featuredMovies, setFeaturedMovies] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchFeatured() {
+    async function fetchBanners() {
       try {
-        const res = await fetch("/api/movies/featured");
-        const data = await res.json();
-        if (data.movies) {
-          setFeaturedMovies(data.movies);
+        // Fetch banners from database first
+        const bannerRes = await fetch("/api/banners");
+        const bannerData = await bannerRes.json();
+        
+        if (bannerData.banners && bannerData.banners.length > 0) {
+          setBanners(bannerData.banners.map(b => ({
+            id: b.id,
+            media: b.imageUrl,
+            name: b.title,
+            link: b.linkUrl,
+            description: b.description,
+            isCustomBanner: true
+          })));
+        } else {
+          // Fallback to featured movies if no banners
+          const movieRes = await fetch("/api/movies/featured");
+          const movieData = await movieRes.json();
+          
+          if (movieData.movies && movieData.movies.length > 0) {
+            setBanners(movieData.movies.map(m => ({
+              id: m.id,
+              media: m.backdrop_url || m.poster_url,
+              name: m.title,
+              link: `/movie/${m.id}`,
+              isMovie: true
+            })));
+          } else {
+            // Final fallback to static banners
+            setBanners([
+              { id: 1, media: "/assets/images/banner-web.jpg", name: "LMK Cinema" },
+              { id: 2, media: "/assets/images/web-banner-chung.jpg", name: "Khuyến mãi" },
+            ]);
+          }
         }
       } catch (err) {
         console.error(err);
+        // Fallback to static banners on error
+        setBanners([
+          { id: 1, media: "/assets/images/banner-web.jpg", name: "LMK Cinema" },
+          { id: 2, media: "/assets/images/web-banner-chung.jpg", name: "Khuyến mãi" },
+        ]);
       } finally {
         setLoading(false);
       }
     }
-    fetchFeatured();
+    fetchBanners();
   }, []);
-
-  // Fallback static banners if no featured movies
-  const staticBanners = [
-    { media: "/assets/images/banner-web.jpg", name: "LMK Cinema" },
-    { media: "/assets/images/web-banner-chung.jpg", name: "Khuyến mãi" },
-  ];
-
-  const banners = featuredMovies.length > 0 
-    ? featuredMovies.map(m => ({
-        id: m.id,
-        media: m.backdrop_url || m.poster_url,
-        name: m.title,
-        isMovie: true
-      }))
-    : staticBanners;
 
   if (loading) {
     return (
@@ -50,6 +69,10 @@ export default function BannerSlider() {
         <div className="loading-spinner"></div>
       </div>
     );
+  }
+
+  if (banners.length === 0) {
+    return null;
   }
 
   return (
@@ -64,7 +87,7 @@ export default function BannerSlider() {
         navigation
         pagination={{ clickable: true }}
         autoplay={{ 
-          delay: 3000, 
+          delay: 4000, 
           disableOnInteraction: false,
           pauseOnMouseEnter: true
         }}
@@ -87,39 +110,73 @@ export default function BannerSlider() {
           },
         }}
       >
-        {banners.map((s, i) => (
-          <SwiperSlide key={s.id || i} className="banner-slide">
-            {s.isMovie ? (
-              <Link href={`/movie/${s.id}`} className="banner-link">
-                {s.media ? (
-                  <Image
-                    src={s.media}
-                    alt={s.name}
-                    fill
-                    priority={i === 0}
-                    sizes="(max-width: 1200px) 100vw, 1200px"
-                    className="banner-img"
-                  />
+        {banners.map((banner, i) => (
+          <SwiperSlide key={banner.id || i} className="banner-slide">
+            {banner.link ? (
+              <Link 
+                href={banner.link} 
+                className="banner-link"
+                target={banner.link.startsWith('http') && !banner.link.includes(typeof window !== 'undefined' ? window.location.host : '') ? '_blank' : '_self'}
+              >
+                {banner.media ? (
+                  banner.media.startsWith('http') ? (
+                    <img
+                      src={banner.media}
+                      alt={banner.name}
+                      className="banner-img-external"
+                    />
+                  ) : (
+                    <Image
+                      src={banner.media}
+                      alt={banner.name}
+                      fill
+                      priority={i === 0}
+                      sizes="(max-width: 1200px) 100vw, 1200px"
+                      className="banner-img"
+                    />
+                  )
                 ) : (
                   <div className="banner-placeholder">
                     <span>🎬</span>
-                    <h2>{s.name}</h2>
+                    <h2>{banner.name}</h2>
                   </div>
                 )}
-                <div className="banner-overlay">
-                  <h2 className="banner-title">{s.name}</h2>
-                  <span className="banner-cta">Xem chi tiết →</span>
-                </div>
+                {(banner.isMovie || banner.description) && (
+                  <div className="banner-overlay">
+                    <h2 className="banner-title">{banner.name}</h2>
+                    {banner.description && <p className="banner-desc">{banner.description}</p>}
+                    <span className="banner-cta">
+                      {banner.isMovie ? "Xem chi tiết →" : "Xem ngay →"}
+                    </span>
+                  </div>
+                )}
               </Link>
             ) : (
-              <Image
-                src={s.media}
-                alt={s.name}
-                fill
-                priority={i === 0}
-                sizes="(max-width: 1200px) 100vw, 1200px"
-                className="banner-img"
-              />
+              <div className="banner-static">
+                {banner.media ? (
+                  banner.media.startsWith('http') ? (
+                    <img
+                      src={banner.media}
+                      alt={banner.name}
+                      className="banner-img-external"
+                    />
+                  ) : (
+                    <Image
+                      src={banner.media}
+                      alt={banner.name}
+                      fill
+                      priority={i === 0}
+                      sizes="(max-width: 1200px) 100vw, 1200px"
+                      className="banner-img"
+                    />
+                  )
+                ) : (
+                  <div className="banner-placeholder">
+                    <span>🎬</span>
+                    <h2>{banner.name}</h2>
+                  </div>
+                )}
+              </div>
             )}
           </SwiperSlide>
         ))}

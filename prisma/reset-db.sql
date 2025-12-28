@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS `user_roles`;
 DROP TABLE IF EXISTS `roles`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `ticket_prices`;
+DROP TABLE IF EXISTS `banners`;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -264,6 +265,19 @@ CREATE TABLE `audit_logs` (
   CONSTRAINT `audit_logs_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE TABLE `banners` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(191) NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `link_url` VARCHAR(500) NULL,
+  `description` VARCHAR(500) NULL,
+  `position` INT NOT NULL DEFAULT 0,
+  `is_active` BOOLEAN NOT NULL DEFAULT true,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- =============================================
 -- SEED DATA
 -- =============================================
@@ -356,6 +370,12 @@ INSERT INTO `concessions` (`name`, `description`, `price`, `type`, `image_url`) 
 ('Nước suối', 'Nước suối Aquafina 500ml', 15000, 'drink', 'https://www.cgv.vn/media/concession/web/60805c73c3df6-aquafina.png'),
 ('Nachos Phô Mai', 'Nachos kèm sốt phô mai', 59000, 'snack', 'https://www.cgv.vn/media/concession/web/60c2b34babb63-nachos.png');
 
+-- Banners (Slide ảnh trang chủ)
+INSERT INTO `banners` (`title`, `image_url`, `link_url`, `description`, `position`, `is_active`) VALUES
+('Khuyến mãi Tháng 12', 'https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/9/8/980x448_u22_1_.jpg', '/chuong-trinh-khuyen-mai', 'Ưu đãi đặc biệt dành cho sinh viên U22', 1, true),
+('Combo Bắp Nước', 'https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/c/o/combo_2nguoi_980x448.jpg', '/popcorn-drink', 'Combo tiết kiệm cho 2 người', 2, true),
+('Phim Hay Tháng 12', 'https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/h/o/home_-_main_banner_-_980wx448h_28_.jpg', '/movie', 'Xem ngay các phim hot nhất', 3, true);
+
 -- =============================================
 -- KIỂM TRA
 -- =============================================
@@ -368,4 +388,5 @@ UNION ALL SELECT 'Seats', COUNT(*) FROM seats
 UNION ALL SELECT 'Movies', COUNT(*) FROM movies
 UNION ALL SELECT 'Showtimes', COUNT(*) FROM showtimes
 UNION ALL SELECT 'Ticket Prices', COUNT(*) FROM ticket_prices
-UNION ALL SELECT 'Concessions', COUNT(*) FROM concessions;
+UNION ALL SELECT 'Concessions', COUNT(*) FROM concessions
+UNION ALL SELECT 'Banners', COUNT(*) FROM banners;
