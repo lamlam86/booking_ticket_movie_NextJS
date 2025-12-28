@@ -201,7 +201,7 @@ export default function AdminTicketsPage() {
               <div><strong>Rạp:</strong> {ticketData.showtime.branch.name}</div>
               <div><strong>Phòng:</strong> {ticketData.showtime.screen.name} ({ticketData.showtime.screen.type})</div>
               <div><strong>Giờ chiếu:</strong> {new Date(ticketData.showtime.startTime).toLocaleString("vi-VN")}</div>
-              <div><strong>Giá vé:</strong> {ticketData.showtime.basePrice.toLocaleString()}đ</div>
+              <div><strong>Loại ngày:</strong> {ticketData.showtime.dayType === "weekend" ? "Cuối tuần" : "Ngày thường"}</div>
             </div>
           </div>
 
@@ -220,7 +220,7 @@ export default function AdminTicketsPage() {
                       key={seat.id}
                       onClick={() => toggleSeat(seat)}
                       disabled={seat.isBooked}
-                      title={`${seat.code} - ${SEAT_TYPE_LABELS[seat.type]}${seat.isBooked ? " (Đã đặt)" : ""}`}
+                      title={`${seat.code} - ${SEAT_TYPE_LABELS[seat.type]} - ${seat.price?.toLocaleString()}đ${seat.isBooked ? " (Đã đặt)" : ""}`}
                       style={{
                         width: 36,
                         height: 36,
@@ -371,8 +371,7 @@ export default function AdminTicketsPage() {
                   type="text" 
                   value={`${(selectedSeats.reduce((sum, seatId) => {
                     const seat = ticketData?.seats.find(s => s.id === seatId);
-                    const multiplier = seat?.type === "vip" ? 1.3 : seat?.type === "couple" ? 2 : 1;
-                    return sum + (ticketData?.showtime.basePrice || 0) * multiplier;
+                    return sum + (seat?.price || 0);
                   }, 0)).toLocaleString()}đ`} 
                   disabled 
                 />

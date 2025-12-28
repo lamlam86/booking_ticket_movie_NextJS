@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
+// Helper to get day type
+function getDayTypeForGet(date) {
+  const day = date.getDay();
+  return (day === 0 || day === 6) ? "weekend" : "weekday";
+}
+
 // GET - Lấy danh sách vé theo suất chiếu
 export async function GET(request) {
   try {
@@ -45,16 +51,35 @@ export async function GET(request) {
       return NextResponse.json({ error: "Không tìm thấy suất chiếu" }, { status: 404 });
     }
 
+    // Get ticket prices for this screen type and day
+    const screenType = showtime.screen.type;
+    const dayType = getDayTypeForGet(new Date(showtime.start_time));
+    
+    const ticketPrices = await prisma.ticket_prices.findMany({
+      where: {
+        screen_type: screenType,
+        day_type: dayType,
+        is_active: true
+      }
+    });
+
+    // Build price map by seat type
+    const priceMap = {};
+    ticketPrices.forEach(tp => {
+      priceMap[tp.seat_type] = Number(tp.price);
+    });
+
     // Get booked seat IDs
     const bookedSeatIds = showtime.bookings.flatMap(b => b.booking_items.map(i => i.seat_id));
 
-    // Format seats with booking status
+    // Format seats with booking status and price
     const seats = showtime.screen.seats.map(seat => ({
       id: seat.id,
       code: seat.seat_code,
       row: seat.seat_row,
       number: seat.seat_number,
       type: seat.seat_type,
+      price: priceMap[seat.seat_type] || priceMap["standard"] || 65000,
       isBooked: bookedSeatIds.includes(seat.id),
       booking: showtime.bookings.find(b => b.booking_items.some(i => i.seat_id === seat.id)) || null
     }));
@@ -82,11 +107,12 @@ export async function GET(request) {
           branch: { id: showtime.screen.branch.id, name: showtime.screen.branch.name },
           screen: { id: showtime.screen.id, name: showtime.screen.name, type: showtime.screen.type },
           startTime: showtime.start_time,
-          basePrice: Number(showtime.base_price),
+          dayType: dayType,
           status: showtime.status
         },
         seats,
         bookings,
+        priceMap,
         stats: {
           totalSeats: seats.length,
           bookedSeats: bookedSeatIds.length,
@@ -100,6 +126,12 @@ export async function GET(request) {
   }
 }
 
+// Helper to get day type
+function getDayType(date) {
+  const day = date.getDay();
+  return (day === 0 || day === 6) ? "weekend" : "weekday";
+}
+
 // POST - Tạo vé mới (đặt ghế)
 export async function POST(request) {
   try {
@@ -110,13 +142,13 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { showtime_id, seat_ids, customer_name, customer_email, customer_phone } = body;
+    const { showtime_id, seat_ids, customer_email } = body;
 
     if (!showtime_id || !seat_ids?.length) {
       return NextResponse.json({ error: "Vui lòng chọn suất chiếu và ghế" }, { status: 400 });
     }
 
-    // Get showtime
+    // Get showtime with screen info
     const showtime = await prisma.showtimes.findUnique({
       where: { id: BigInt(showtime_id) },
       include: { screen: { include: { seats: true } } }
@@ -141,18 +173,37 @@ export async function POST(request) {
       return NextResponse.json({ error: "Một số ghế đã được đặt" }, { status: 400 });
     }
 
-    // Calculate price
-    const basePrice = Number(showtime.base_price);
+    // Get ticket prices from ticket_prices table
+    const screenType = showtime.screen.type;
+    const dayType = getDayType(new Date(showtime.start_time));
+    
+    const ticketPrices = await prisma.ticket_prices.findMany({
+      where: {
+        screen_type: screenType,
+        day_type: dayType,
+        is_active: true
+      }
+    });
+
+    // Build price map by seat type
+    const priceMap = {};
+    ticketPrices.forEach(tp => {
+      priceMap[tp.seat_type] = Number(tp.price);
+    });
+
+    // Calculate price for each seat
     const seats = showtime.screen.seats.filter(s => seat_ids.includes(s.id));
-    const subtotal = seats.reduce((sum, seat) => {
-      const multiplier = seat.seat_type === "vip" ? 1.3 : seat.seat_type === "couple" ? 2 : 1;
-      return sum + basePrice * multiplier;
-    }, 0);
+    const seatPrices = seats.map(seat => {
+      const price = priceMap[seat.seat_type] || priceMap["standard"] || 65000;
+      return { seat, price };
+    });
+
+    const subtotal = seatPrices.reduce((sum, sp) => sum + sp.price, 0);
 
     // Generate booking code
     const bookingCode = `TK${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
-    // Find or create user if email provided
+    // Find user if email provided
     let userId = null;
     if (customer_email) {
       const existingUser = await prisma.users.findUnique({ where: { email: customer_email } });
@@ -174,9 +225,9 @@ export async function POST(request) {
         status: "confirmed",
         paid_at: new Date(),
         booking_items: {
-          create: seats.map(seat => ({
-            seat_id: seat.id,
-            seat_price: basePrice * (seat.seat_type === "vip" ? 1.3 : seat.seat_type === "couple" ? 2 : 1)
+          create: seatPrices.map(sp => ({
+            seat_id: sp.seat.id,
+            seat_price: sp.price
           }))
         }
       },

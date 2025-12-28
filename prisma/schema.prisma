@@ -325,3 +325,9 @@ enum PromotionStatus {
   expired
   disabled
 }
+
+enum DayType {
+  weekday
+  weekend
+  holiday
+}

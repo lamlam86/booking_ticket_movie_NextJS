@@ -46,7 +46,6 @@ export async function GET(request) {
         branch: { id: s.screen.branch.id, name: s.screen.branch.name },
         start_time: s.start_time,
         end_time: s.end_time,
-        base_price: Number(s.base_price),
         language: s.language,
         subtitle: s.subtitle,
         status: s.status,
@@ -70,9 +69,9 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { movie_id, screen_id, start_time, base_price, language, subtitle } = body;
+    const { movie_id, screen_id, start_time, language, subtitle } = body;
 
-    if (!movie_id || !screen_id || !start_time || !base_price) {
+    if (!movie_id || !screen_id || !start_time) {
       return NextResponse.json({ error: "Thiếu thông tin bắt buộc" }, { status: 400 });
     }
 
@@ -96,10 +95,9 @@ export async function POST(request) {
         screen_id: parseInt(screen_id),
         start_time: startDate,
         end_time: endDate,
-        base_price: parseInt(base_price), // Ensure it's a number for Decimal
         language: language || null,
         subtitle: subtitle || null,
-        status: "selling" // Default to selling so tickets can be booked
+        status: "selling"
       },
       include: {
         movie: { select: { title: true } },
@@ -123,5 +121,3 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message || "Lỗi server" }, { status: 500 });
   }
 }
-
-
