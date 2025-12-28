@@ -102,10 +102,13 @@ export async function GET(request, { params }) {
           id: Number(st.id),
           start_time: st.start_time,
           end_time: st.end_time,
-          base_price: Number(st.base_price),
+          language: st.language,
+          subtitle: st.subtitle,
+          status: st.status,
           screen: {
             id: st.screen.id,
             name: st.screen.name,
+            type: st.screen.type,
             branch: {
               id: st.screen.branch.id,
               name: st.screen.branch.name,

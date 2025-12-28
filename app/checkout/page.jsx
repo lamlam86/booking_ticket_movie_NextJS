@@ -57,7 +57,10 @@ export default function CheckoutPage() {
   };
 
   const calculateItemTotal = (item) => {
-    const ticketTotal = item.seats.length * item.showtime.base_price;
+    // Tính tiền vé từ seatData (có giá riêng mỗi ghế từ ticket_prices)
+    const ticketTotal = item.seatData 
+      ? item.seatData.reduce((sum, s) => sum + (s.price || 65000), 0)
+      : item.seats.length * (item.showtime.base_price || 65000);
     const concessionTotal = Object.entries(item.concessions || {}).reduce((sum, [id, qty]) => {
       const concession = item.concessionItems?.find(c => c.id === Number(id));
       return sum + (concession ? concession.price * qty : 0);
@@ -101,10 +104,10 @@ export default function CheckoutPage() {
 
       // Create bookings for each item in cart
       for (const item of cart) {
-        // Format seats for API (needs seat_id and price)
+        // Format seats for API (needs seat_id and price from seatData)
         const seatsForApi = item.seatData || item.seats.map((label, idx) => ({
           seat_id: idx + 1, // Fallback if no seatData
-          price: item.showtime.base_price,
+          price: 65000, // Giá mặc định
         }));
 
         // Format concessions for API (needs concession_id and quantity)
@@ -279,7 +282,10 @@ export default function CheckoutPage() {
                       </div>
                       <div className="detail-row">
                         <span>🎟️ Giá vé:</span>
-                        <strong>{item.seats.length} x {formatPrice(item.showtime.base_price)}</strong>
+                        <strong>{item.seatData 
+                          ? formatPrice(item.seatData.reduce((sum, s) => sum + (s.price || 65000), 0))
+                          : `${item.seats.length} vé`
+                        }</strong>
                       </div>
                     </div>
 
