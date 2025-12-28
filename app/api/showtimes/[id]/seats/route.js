@@ -64,14 +64,10 @@ export async function GET(request, { params }) {
 
     // Get ticket prices for this screen type
     const screenType = showtime.screen.type;
-    const startDate = new Date(showtime.start_time);
-    const dayOfWeek = startDate.getDay();
-    const dayType = (dayOfWeek === 0 || dayOfWeek === 6) ? "weekend" : "weekday";
     
     const ticketPrices = await prisma.ticket_prices.findMany({
       where: {
         screen_type: screenType,
-        day_type: dayType,
         is_active: true
       }
     });

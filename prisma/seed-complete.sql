@@ -53,40 +53,30 @@ CROSS JOIN (SELECT 1 as n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SEL
 ORDER BY s.id, r.n, c.n;
 
 -- =============================================
--- 4. BẢNG GIÁ VÉ (CHỈ STANDARD VÀ VIP)
+-- 4. BẢNG GIÁ VÉ (CHỈ STANDARD VÀ VIP, KHÔNG PHÂN BIỆT NGÀY)
 -- =============================================
 DELETE FROM `ticket_prices`;
 
 INSERT INTO `ticket_prices` (`screen_type`, `seat_type`, `day_type`, `price`, `is_active`, `created_at`, `updated_at`) VALUES
 -- Standard screen
-('standard', 'standard', 'weekday', 59000, true, NOW(), NOW()),
-('standard', 'standard', 'weekend', 69000, true, NOW(), NOW()),
-('standard', 'vip', 'weekday', 79000, true, NOW(), NOW()),
-('standard', 'vip', 'weekend', 89000, true, NOW(), NOW()),
+('standard', 'standard', 'weekday', 65000, true, NOW(), NOW()),
+('standard', 'vip', 'weekday', 85000, true, NOW(), NOW()),
 
 -- VIP screen
-('vip', 'standard', 'weekday', 79000, true, NOW(), NOW()),
-('vip', 'standard', 'weekend', 89000, true, NOW(), NOW()),
-('vip', 'vip', 'weekday', 99000, true, NOW(), NOW()),
-('vip', 'vip', 'weekend', 109000, true, NOW(), NOW()),
+('vip', 'standard', 'weekday', 85000, true, NOW(), NOW()),
+('vip', 'vip', 'weekday', 105000, true, NOW(), NOW()),
 
 -- IMAX screen
-('imax', 'standard', 'weekday', 99000, true, NOW(), NOW()),
-('imax', 'standard', 'weekend', 119000, true, NOW(), NOW()),
-('imax', 'vip', 'weekday', 129000, true, NOW(), NOW()),
-('imax', 'vip', 'weekend', 149000, true, NOW(), NOW()),
+('imax', 'standard', 'weekday', 110000, true, NOW(), NOW()),
+('imax', 'vip', 'weekday', 140000, true, NOW(), NOW()),
 
 -- 4DX screen
-('4dx', 'standard', 'weekday', 129000, true, NOW(), NOW()),
-('4dx', 'standard', 'weekend', 149000, true, NOW(), NOW()),
-('4dx', 'vip', 'weekday', 159000, true, NOW(), NOW()),
-('4dx', 'vip', 'weekend', 179000, true, NOW(), NOW()),
+('4dx', 'standard', 'weekday', 140000, true, NOW(), NOW()),
+('4dx', 'vip', 'weekday', 170000, true, NOW(), NOW()),
 
 -- Premium screen
-('premium', 'standard', 'weekday', 89000, true, NOW(), NOW()),
-('premium', 'standard', 'weekend', 99000, true, NOW(), NOW()),
-('premium', 'vip', 'weekday', 109000, true, NOW(), NOW()),
-('premium', 'vip', 'weekend', 119000, true, NOW(), NOW());
+('premium', 'standard', 'weekday', 95000, true, NOW(), NOW()),
+('premium', 'vip', 'weekday', 115000, true, NOW(), NOW());
 
 -- =============================================
 -- 5. TẠO SUẤT CHIẾU MẪU (7 ngày tới)

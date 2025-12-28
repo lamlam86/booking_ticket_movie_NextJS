@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     const prices = await prisma.ticket_prices.findMany({
-      orderBy: [{ screen_type: "asc" }, { seat_type: "asc" }, { day_type: "asc" }]
+      orderBy: [{ screen_type: "asc" }, { seat_type: "asc" }]
     });
 
     return NextResponse.json({
@@ -22,7 +22,6 @@ export async function GET() {
         id: p.id,
         screenType: p.screen_type,
         seatType: p.seat_type,
-        dayType: p.day_type,
         price: Number(p.price),
         isActive: p.is_active
       }))
@@ -43,14 +42,14 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { screen_type, seat_type, day_type, price } = body;
+    const { screen_type, seat_type, price } = body;
 
-    if (!screen_type || !seat_type || !day_type || price === undefined) {
+    if (!screen_type || !seat_type || price === undefined) {
       return NextResponse.json({ error: "Thiếu thông tin" }, { status: 400 });
     }
 
     const existing = await prisma.ticket_prices.findFirst({
-      where: { screen_type, seat_type, day_type }
+      where: { screen_type, seat_type }
     });
 
     if (existing) {
@@ -58,7 +57,7 @@ export async function POST(request) {
     }
 
     const newPrice = await prisma.ticket_prices.create({
-      data: { screen_type, seat_type, day_type, price }
+      data: { screen_type, seat_type, price, day_type: "weekday" }
     });
 
     return NextResponse.json({
@@ -66,7 +65,6 @@ export async function POST(request) {
         id: newPrice.id,
         screenType: newPrice.screen_type,
         seatType: newPrice.seat_type,
-        dayType: newPrice.day_type,
         price: Number(newPrice.price),
         isActive: newPrice.is_active
       }
@@ -107,7 +105,6 @@ export async function PATCH(request) {
         id: updated.id,
         screenType: updated.screen_type,
         seatType: updated.seat_type,
-        dayType: updated.day_type,
         price: Number(updated.price),
         isActive: updated.is_active
       }
