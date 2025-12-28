@@ -310,7 +310,8 @@ FROM screens s
 CROSS JOIN (SELECT 1 as n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) r
 CROSS JOIN (SELECT 1 as n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) c;
 
--- Ticket Prices (Giá vé - chỉ 2 loại)
+-- Ticket Prices (Giá vé - chỉ 2 loại: Thường 65.000đ, VIP 85.000đ)
+-- Giá này áp dụng cho TẤT CẢ các ngày, không phân biệt ngày thường/cuối tuần/lễ
 INSERT INTO `ticket_prices` (`screen_type`, `seat_type`, `day_type`, `price`, `is_active`) VALUES
 ('standard', 'standard', 'weekday', 65000, true),
 ('standard', 'vip', 'weekday', 85000, true);
