@@ -164,15 +164,24 @@ export async function PATCH(request, { params }) {
         ...(body.releaseDate !== undefined ? { release_date: body.releaseDate ? new Date(body.releaseDate) : null } : {}),
         ...(body.duration !== undefined ? { duration_minutes: body.duration } : {}),
         ...(body.rating !== undefined ? { rating: body.rating } : {}),
-        ...(body.isFeatured !== undefined ? { is_featured: body.isFeatured } : {}),
       },
       include: {
         _count: { select: { showtimes: true } },
       },
     });
 
-    const data = await mapMovie(movie);
-    return NextResponse.json({ data });
+    return NextResponse.json({
+      data: {
+        id: Number(movie.id),
+        title: movie.title,
+        poster: movie.poster_url,
+        status: movie.status,
+        releaseDate: toISODate(movie.release_date),
+        duration: movie.duration_minutes ?? 0,
+        rating: movie.rating ?? '',
+        totalShows: movie._count?.showtimes ?? 0,
+      }
+    });
   } catch (error) {
     console.error('PATCH /api/movies/[id] failed', error);
     return NextResponse.json({ error: 'Không thể cập nhật phim.' }, { status: 500 });
