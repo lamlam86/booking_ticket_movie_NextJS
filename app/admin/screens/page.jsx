@@ -25,8 +25,8 @@ export default function AdminScreensPage() {
   const [formData, setFormData] = useState({
     name: "",
     type: "standard",
-    seat_rows: 5,
-    seat_cols: 8,
+    seat_rows: 10,
+    seat_cols: 12,
     status: "active"
   });
   const [saving, setSaving] = useState(false);
@@ -75,8 +75,8 @@ export default function AdminScreensPage() {
     setFormData({
       name: `Rạp ${String(screens.length + 1).padStart(2, '0')}`,
       type: "standard",
-      seat_rows: 5,
-      seat_cols: 8,
+      seat_rows: 10,
+      seat_cols: 12,
       status: "active"
     });
     setShowModal(true);

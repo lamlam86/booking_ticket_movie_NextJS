@@ -80,7 +80,7 @@ export async function POST(request) {
       }
     });
 
-    // Auto generate seats
+    // Auto generate seats (last 2 rows are VIP)
     const seats = [];
     for (let row = 1; row <= seat_rows; row++) {
       for (let col = 1; col <= seat_cols; col++) {
@@ -90,7 +90,7 @@ export async function POST(request) {
           seat_code: `${rowLetter}${String(col).padStart(2, '0')}`,
           seat_row: rowLetter,
           seat_number: col,
-          seat_type: row >= seat_rows - 1 ? "vip" : "standard" // Last 2 rows are VIP
+          seat_type: row >= seat_rows - 1 ? "vip" : "standard"
         });
       }
     }
