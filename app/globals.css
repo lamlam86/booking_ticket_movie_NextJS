@@ -6563,6 +6563,197 @@ button {
   margin-left: 8px;
 }
 
+/* Ticket Card with QR */
+.ticket-card--with-qr {
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
+  gap: 16px;
+}
+
+.ticket-card__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.ticket-card__qr:hover {
+  transform: scale(1.05);
+}
+
+.ticket-qr-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+}
+
+.ticket-qr-label {
+  font-size: 0.75rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* QR Modal */
+.qr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.qr-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  border: 1px solid var(--border);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.qr-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--glass);
+  color: var(--text-primary);
+  font-size: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.qr-modal__close:hover {
+  background: var(--danger);
+}
+
+.qr-modal__content {
+  padding: 24px;
+  text-align: center;
+}
+
+.qr-modal__title {
+  font-size: 1.25rem;
+  margin: 0 0 20px;
+  color: var(--text-primary);
+}
+
+.qr-modal__qr-wrap {
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.qr-modal__qr-image {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.qr-modal__info {
+  text-align: left;
+}
+
+.qr-modal__movie {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.qr-modal__code {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.qr-modal__code strong {
+  color: var(--primary-light);
+  font-size: 1rem;
+}
+
+.qr-modal__details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.qr-modal__details p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.qr-modal__note {
+  background: var(--primary);
+  color: white;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ticket-card--with-qr {
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .ticket-card__qr {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-start;
+    background: rgba(255,255,255,0.1);
+    padding: 12px 16px;
+  }
+  
+  .ticket-qr-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .ticket-qr-label {
+    color: var(--text-muted);
+  }
+}
+
 .ticket-card__total {
   font-size: 1.1rem;
   font-weight: 700;
