@@ -4,6 +4,16 @@ import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
+// Helper to check if banners table exists
+async function checkBannersTable() {
+  try {
+    await prisma.$queryRaw`SELECT 1 FROM banners LIMIT 1`;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 // GET - Lấy danh sách banner
 export async function GET() {
   try {
@@ -11,6 +21,15 @@ export async function GET() {
     const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
     if (!user || !isAdminOrStaff) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if table exists
+    const tableExists = await checkBannersTable();
+    if (!tableExists) {
+      return NextResponse.json({ 
+        data: [],
+        message: "Bảng banners chưa được tạo. Vui lòng chạy: npx prisma db push"
+      });
     }
 
     const banners = await prisma.banners.findMany({
@@ -31,7 +50,10 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/banners error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ 
+      data: [],
+      error: "Lỗi kết nối database. Vui lòng chạy: npx prisma db push" 
+    });
   }
 }
 
@@ -39,9 +61,17 @@ export async function GET() {
 export async function POST(request) {
   try {
     const user = await getCurrentUser();
-    const isAdmin = user?.roles?.includes("admin");
-    if (!user || !isAdmin) {
-      return NextResponse.json({ error: "Chỉ admin mới có quyền" }, { status: 403 });
+    const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
+    if (!user || !isAdminOrStaff) {
+      return NextResponse.json({ error: "Không có quyền truy cập" }, { status: 403 });
+    }
+
+    // Check if table exists
+    const tableExists = await checkBannersTable();
+    if (!tableExists) {
+      return NextResponse.json({ 
+        error: "Bảng banners chưa được tạo. Vui lòng chạy: npx prisma db push" 
+      }, { status: 500 });
     }
 
     const body = await request.json();
@@ -54,10 +84,14 @@ export async function POST(request) {
     // Get max position if not provided
     let finalPosition = position;
     if (finalPosition === undefined || finalPosition === null) {
-      const maxBanner = await prisma.banners.findFirst({
-        orderBy: { position: "desc" }
-      });
-      finalPosition = (maxBanner?.position || 0) + 1;
+      try {
+        const maxBanner = await prisma.banners.findFirst({
+          orderBy: { position: "desc" }
+        });
+        finalPosition = (maxBanner?.position || 0) + 1;
+      } catch (e) {
+        finalPosition = 1;
+      }
     }
 
     const banner = await prisma.banners.create({
@@ -72,6 +106,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({
+      success: true,
       data: {
         id: banner.id,
         title: banner.title,
@@ -84,6 +119,8 @@ export async function POST(request) {
     }, { status: 201 });
   } catch (error) {
     console.error("POST /api/admin/banners error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || "Lỗi tạo banner. Kiểm tra database connection." 
+    }, { status: 500 });
   }
 }
