@@ -277,14 +277,26 @@ export default function CheckoutPage() {
                         <strong>{formatTime(item.showtime.start_time)} - {formatDate(item.showtime.start_time)}</strong>
                       </div>
                       <div className="detail-row">
-                        <span>💺 Ghế:</span>
+                        <span>💺 Ghế ({item.seats.length}):</span>
                         <strong>{item.seats.join(", ")}</strong>
                       </div>
+                      {item.seatData && (
+                        <div className="detail-row detail-row--seats">
+                          <span>🎟️ Chi tiết vé:</span>
+                          <div className="seat-prices">
+                            {item.seatData.map((s, idx) => (
+                              <span key={idx} className="seat-price-item">
+                                {s.label}: {formatPrice(s.price || 65000)} ({s.seat_type === 'vip' ? 'VIP' : 'Thường'})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="detail-row">
-                        <span>🎟️ Giá vé:</span>
+                        <span>💰 Tổng vé:</span>
                         <strong>{item.seatData 
                           ? formatPrice(item.seatData.reduce((sum, s) => sum + (s.price || 65000), 0))
-                          : `${item.seats.length} vé`
+                          : formatPrice(item.seats.length * 65000)
                         }</strong>
                       </div>
                     </div>

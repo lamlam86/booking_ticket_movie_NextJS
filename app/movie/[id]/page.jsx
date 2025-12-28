@@ -22,12 +22,8 @@ function getWeekday(dateStr) {
   return weekdays[date.getDay()];
 }
 
-// Ticket types
-const TICKET_TYPES = [
-  { id: "adult", name: "NGƯỜI LỚN", type: "ĐƠN", priceMultiplier: 1 },
-  { id: "student", name: "HSSV-U22-GV", type: "ĐƠN", priceMultiplier: 0.9 },
-  { id: "senior", name: "NGƯỜI CAO TUỔI", type: "ĐƠN", priceMultiplier: 0.8 },
-];
+// Số vé tối đa có thể chọn
+const MAX_TICKETS = 10;
 
 export default function MovieDetailPage() {
   const params = useParams();
@@ -45,7 +41,6 @@ export default function MovieDetailPage() {
   const [userLoading, setUserLoading] = useState(true);
   
   // Booking state
-  const [tickets, setTickets] = useState({});
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [concessions, setConcessions] = useState({});
   
@@ -142,24 +137,15 @@ export default function MovieDetailPage() {
     }
   }, [selectedShowtime, fetchSeats]);
 
-  // Calculate total tickets count
-  const totalTickets = useMemo(() => {
-    return Object.entries(tickets).reduce((sum, [id, qty]) => {
-      const ticket = TICKET_TYPES.find(t => t.id === id);
-      if (ticket?.type === "ĐÔI") return sum + qty * 2;
-      return sum + qty;
-    }, 0);
-  }, [tickets]);
+  // Số ghế đã chọn
+  const totalTickets = selectedSeats.length;
 
-  // Calculate totals
+  // Calculate totals - based on seat type prices
   const totals = useMemo(() => {
-    let ticketTotal = 0;
-    Object.entries(tickets).forEach(([id, qty]) => {
-      const ticket = TICKET_TYPES.find(t => t.id === id);
-      if (ticket) {
-        ticketTotal += Math.round(basePrice * ticket.priceMultiplier) * qty;
-      }
-    });
+    // Tính tổng tiền vé theo loại ghế
+    const ticketTotal = selectedSeats.reduce((sum, seat) => {
+      return sum + getSeatPrice(seat.seat_type);
+    }, 0);
 
     let concessionTotal = 0;
     Object.entries(concessions).forEach(([id, qty]) => {
@@ -173,19 +159,7 @@ export default function MovieDetailPage() {
       concessions: concessionTotal,
       total: ticketTotal + concessionTotal,
     };
-  }, [tickets, concessions, basePrice, concessionList]);
-
-  const handleTicketChange = (id, delta) => {
-    setTickets(prev => {
-      const current = prev[id] || 0;
-      const newQty = Math.max(0, Math.min(10, current + delta));
-      if (newQty === 0) {
-        const { [id]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [id]: newQty };
-    });
-  };
+  }, [selectedSeats, concessions, concessionList, priceMap, basePrice]);
 
   const handleSeatClick = (seat) => {
     if (seat.status === "booked") return;
@@ -193,10 +167,12 @@ export default function MovieDetailPage() {
     setSelectedSeats(prev => {
       const exists = prev.find(s => s.id === seat.id);
       if (exists) {
+        // Bỏ chọn ghế
         return prev.filter(s => s.id !== seat.id);
       }
-      if (prev.length >= totalTickets && totalTickets > 0) {
-        return [...prev.slice(1), seat];
+      // Thêm ghế nếu chưa đạt giới hạn
+      if (prev.length >= MAX_TICKETS) {
+        return prev; // Không cho chọn thêm
       }
       return [...prev, seat];
     });
@@ -250,7 +226,7 @@ export default function MovieDetailPage() {
       return;
     }
 
-    if (!selectedShowtime || selectedSeats.length !== totalTickets) return;
+    if (!selectedShowtime || selectedSeats.length === 0) return;
 
     // Build cart item with full seat data
     const cartItem = {
@@ -273,6 +249,7 @@ export default function MovieDetailPage() {
         seat_id: s.id,
         price: getSeatPrice(s.seat_type),
         label: s.label || s.seat_code || `${s.seat_row}${s.seat_number}`,
+        seat_type: s.seat_type,
       })),
       concessions: concessions,
       concessionItems: [...concessionList.combos, ...concessionList.drinks],
@@ -281,7 +258,6 @@ export default function MovieDetailPage() {
     addToCart(cartItem);
 
     // Reset form
-    setTickets({});
     setSelectedSeats([]);
     setConcessions({});
     // Keep showtime selected for user convenience
@@ -295,7 +271,7 @@ export default function MovieDetailPage() {
       return;
     }
 
-    if (!selectedShowtime || selectedSeats.length !== totalTickets) return;
+    if (!selectedShowtime || selectedSeats.length === 0) return;
 
     // Build and add cart item with individual seat prices
     const cartItem = {
@@ -317,6 +293,7 @@ export default function MovieDetailPage() {
         seat_id: s.id,
         price: getSeatPrice(s.seat_type),
         label: s.label || s.seat_code || `${s.seat_row}${s.seat_number}`,
+        seat_type: s.seat_type,
       })),
       concessions: concessions,
       concessionItems: [...concessionList.combos, ...concessionList.drinks],
@@ -580,37 +557,6 @@ export default function MovieDetailPage() {
                 )}
               </section>
 
-              {/* CHỌN LOẠI VÉ */}
-              <section className="booking-section">
-                <h2 className="booking-section-title">CHỌN LOẠI VÉ</h2>
-                <div className="ticket-types-grid">
-                  {TICKET_TYPES.map((ticket) => (
-                    <div key={ticket.id} className="ticket-type-card">
-                      <div className="ticket-type-info">
-                        <h3 className="ticket-type-name">{ticket.name}</h3>
-                        <span className="ticket-type-label">{ticket.type}</span>
-                        <p className="ticket-type-price">{formatPrice(Math.round(basePrice * ticket.priceMultiplier))}</p>
-                      </div>
-                      <div className="ticket-type-qty">
-                        <button 
-                          className="qty-btn"
-                          onClick={() => handleTicketChange(ticket.id, -1)}
-                        >
-                          −
-                        </button>
-                        <span className="qty-value">{tickets[ticket.id] || 0}</span>
-                        <button 
-                          className="qty-btn"
-                          onClick={() => handleTicketChange(ticket.id, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
               {/* CHỌN GHẾ */}
               <section className="booking-section">
                 <h2 className="booking-section-title">
@@ -653,15 +599,15 @@ export default function MovieDetailPage() {
                   <div className="seat-legend">
                     <div className="legend-item">
                       <span className="legend-seat legend-seat--standard"></span>
-                      <span>Ghế Thường</span>
+                      <span>Ghế Thường - {formatPrice(priceMap.standard || 65000)}</span>
                     </div>
                     <div className="legend-item">
                       <span className="legend-seat legend-seat--vip"></span>
-                      <span>Ghế VIP</span>
+                      <span>Ghế VIP - {formatPrice(priceMap.vip || 85000)}</span>
                     </div>
                     <div className="legend-item">
                       <span className="legend-seat legend-seat--selected"></span>
-                      <span>Ghế chọn</span>
+                      <span>Ghế đang chọn</span>
                     </div>
                     <div className="legend-item">
                       <span className="legend-seat legend-seat--booked"></span>
@@ -755,7 +701,7 @@ export default function MovieDetailPage() {
               <section className="booking-summary">
                 <div className="summary-content">
                   <div className="summary-row">
-                    <span>Vé ({totalTickets}):</span>
+                    <span>Vé ({totalTickets} ghế):</span>
                     <span>{formatPrice(totals.tickets)}</span>
                   </div>
                   <div className="summary-row">
@@ -770,7 +716,7 @@ export default function MovieDetailPage() {
                 <div className="booking-summary__actions">
                   <button 
                     className="btn-add-cart"
-                    disabled={!selectedShowtime || totalTickets === 0 || selectedSeats.length !== totalTickets}
+                    disabled={!selectedShowtime || selectedSeats.length === 0}
                     onClick={handleAddToCart}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -782,16 +728,14 @@ export default function MovieDetailPage() {
                   </button>
                   <button 
                     className="btn-checkout"
-                    disabled={!selectedShowtime || totalTickets === 0 || selectedSeats.length !== totalTickets}
+                    disabled={!selectedShowtime || selectedSeats.length === 0}
                     onClick={handleCheckoutNow}
                   >
                     {!selectedShowtime
                       ? "CHỌN SUẤT CHIẾU"
-                      : totalTickets === 0 
-                        ? "VUI LÒNG CHỌN VÉ" 
-                        : selectedSeats.length !== totalTickets 
-                          ? `CHỌN ${totalTickets - selectedSeats.length} GHẾ NỮA`
-                          : "THANH TOÁN NGAY"
+                      : selectedSeats.length === 0 
+                        ? "VUI LÒNG CHỌN GHẾ" 
+                        : "THANH TOÁN NGAY"
                     }
                   </button>
                 </div>
