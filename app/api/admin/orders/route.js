@@ -19,7 +19,37 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const where = status && status !== "all" ? { payment_status: status } : {};
+    // Build where clause
+    let where = {};
+    
+    if (status && status !== "all") {
+      where.payment_status = status;
+    }
+    
+    // Ẩn các đơn hàng đang chờ thanh toán QR (bank_transfer) mà chưa xác nhận
+    // Chỉ hiển thị khi: 
+    // - Không phải bank_transfer, HOẶC
+    // - Là bank_transfer nhưng đã thanh toán (paid) hoặc đã xác nhận (confirmed)
+    // - Là bank_transfer và khách đã bấm xác nhận (pending_confirmation)
+    if (!status || status === "all" || status === "pending") {
+      where = {
+        ...where,
+        OR: [
+          // Đơn hàng không phải chuyển khoản - hiển thị tất cả
+          { payment_method: { not: "bank_transfer" } },
+          // Đơn hàng chuyển khoản đã thanh toán
+          { 
+            payment_method: "bank_transfer",
+            payment_status: { in: ["paid", "failed", "refunded"] }
+          },
+          // Đơn hàng chuyển khoản đã được xác nhận (khách đã bấm "Tôi đã chuyển khoản")
+          {
+            payment_method: "bank_transfer",
+            status: { in: ["confirmed", "pending_confirmation"] }
+          }
+        ]
+      };
+    }
 
     const [bookings, total] = await Promise.all([
       prisma.bookings.findMany({

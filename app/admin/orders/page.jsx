@@ -10,6 +10,7 @@ const PAYMENT_STATUS = {
 
 const BOOKING_STATUS = {
   reserved: { label: "Đã đặt", color: "blue" },
+  pending_confirmation: { label: "Chờ xác nhận CK", color: "orange" },
   confirmed: { label: "Đã xác nhận", color: "green" },
   cancelled: { label: "Đã hủy", color: "red" }
 };

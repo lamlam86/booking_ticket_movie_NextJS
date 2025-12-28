@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -20,6 +20,88 @@ export default function CheckoutPage() {
   const [bookingIds, setBookingIds] = useState([]);
   const [savedCartData, setSavedCartData] = useState(null); // Lưu cart data trước khi xóa
   const [seatErrors, setSeatErrors] = useState([]); // Lưu lỗi ghế đã đặt
+  const [timeLeft, setTimeLeft] = useState(null); // Thời gian còn lại để thanh toán
+  const checkIntervalRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  // Khôi phục pending payment từ localStorage khi load trang
+  useEffect(() => {
+    const pendingPayment = localStorage.getItem("lmk_pending_payment");
+    if (pendingPayment) {
+      try {
+        const parsed = JSON.parse(pendingPayment);
+        const expiresAt = new Date(parsed.expires_at);
+        const now = new Date();
+        
+        // Kiểm tra còn hạn không
+        if (expiresAt > now) {
+          setQrPayment(parsed.qrPayment);
+          setBookingIds(parsed.bookingIds);
+          setSavedCartData(parsed.savedCartData);
+          setPaymentMethod("bank");
+          // Tính thời gian còn lại
+          const remaining = Math.floor((expiresAt - now) / 1000);
+          setTimeLeft(remaining);
+          // Tiếp tục kiểm tra thanh toán
+          startPaymentCheck(parsed.qrPayment.transaction_id, remaining);
+        } else {
+          // Đã hết hạn, xóa pending payment
+          localStorage.removeItem("lmk_pending_payment");
+        }
+      } catch (e) {
+        console.error("Error restoring pending payment:", e);
+        localStorage.removeItem("lmk_pending_payment");
+      }
+    }
+  }, []);
+
+  // Countdown timer cho QR payment
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          // Hết hạn
+          handlePaymentExpired();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  // Cleanup intervals khi unmount
+  useEffect(() => {
+    return () => {
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handlePaymentExpired = () => {
+    if (checkIntervalRef.current) {
+      clearInterval(checkIntervalRef.current);
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setCheckingPayment(false);
+    localStorage.removeItem("lmk_pending_payment");
+    alert("Mã QR đã hết hạn. Vui lòng thực hiện lại giao dịch.");
+    // Reset state để cho phép đặt lại
+    setQrPayment(null);
+    setBookingIds([]);
+    setSavedCartData(null);
+    setTimeLeft(null);
+  };
 
   useEffect(() => {
     async function fetchUser() {
@@ -214,8 +296,28 @@ export default function CheckoutPage() {
         const qrData = await qrRes.json();
         if (qrRes.ok && qrData.success) {
           setQrPayment(qrData.payment);
+          
+          // Lưu pending payment vào localStorage để khôi phục khi quay lại
+          const pendingPaymentData = {
+            qrPayment: qrData.payment,
+            bookingIds: finalBookingIds,
+            savedCartData: {
+              items: savedCartData?.items || [...cart],
+              total: savedCartData?.total || getCartTotal(),
+              count: savedCartData?.count || getCartCount()
+            },
+            expires_at: qrData.payment.expires_at,
+            created_at: new Date().toISOString()
+          };
+          localStorage.setItem("lmk_pending_payment", JSON.stringify(pendingPaymentData));
+          
+          // Set thời gian còn lại (10 phút = 600 giây)
+          const expiresAt = new Date(qrData.payment.expires_at);
+          const remaining = Math.floor((expiresAt - new Date()) / 1000);
+          setTimeLeft(remaining > 0 ? remaining : 600);
+          
           // Bắt đầu kiểm tra thanh toán tự động
-          startPaymentCheck(qrData.payment.transaction_id);
+          startPaymentCheck(qrData.payment.transaction_id, remaining > 0 ? remaining : 600);
         } else {
           throw new Error(qrData.error || "Lỗi tạo mã QR thanh toán");
         }
@@ -232,10 +334,18 @@ export default function CheckoutPage() {
   };
 
   // Kiểm tra trạng thái thanh toán tự động
-  const startPaymentCheck = (transactionId) => {
+  const startPaymentCheck = (transactionId, remainingSeconds = 600) => {
     setCheckingPayment(true);
     
-    const checkInterval = setInterval(async () => {
+    // Clear existing intervals
+    if (checkIntervalRef.current) {
+      clearInterval(checkIntervalRef.current);
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    checkIntervalRef.current = setInterval(async () => {
       try {
         const res = await fetch("/api/payments/check-status", {
           method: "POST",
@@ -246,25 +356,25 @@ export default function CheckoutPage() {
         const data = await res.json();
         
         if (data.success && data.status === "paid") {
-          clearInterval(checkInterval);
+          clearInterval(checkIntervalRef.current);
+          clearTimeout(timeoutRef.current);
           setCheckingPayment(false);
+          // Xóa pending payment khi thanh toán thành công
+          localStorage.removeItem("lmk_pending_payment");
           clearCart();
           router.push("/checkout/success");
         } else if (data.status === "expired" || data.status === "failed") {
-          clearInterval(checkInterval);
-          setCheckingPayment(false);
-          alert("Mã QR đã hết hạn hoặc thanh toán thất bại");
+          handlePaymentExpired();
         }
       } catch (error) {
         console.error("Error checking payment:", error);
       }
     }, 5000); // Kiểm tra mỗi 5 giây
 
-    // Dừng kiểm tra sau 15 phút
-    setTimeout(() => {
-      clearInterval(checkInterval);
-      setCheckingPayment(false);
-    }, 15 * 60 * 1000);
+    // Dừng kiểm tra sau thời gian còn lại
+    timeoutRef.current = setTimeout(() => {
+      handlePaymentExpired();
+    }, remainingSeconds * 1000);
   };
 
   // Sử dụng savedCartData nếu cart đã bị xóa (khi đang hiển thị QR)
@@ -549,23 +659,76 @@ export default function CheckoutPage() {
                         <span className="qr-detail-value qr-detail-code">LMK-{qrPayment.booking_code}</span>
                       </div>
                       <div className="qr-detail-item qr-detail-warning">
-                        <span className="qr-detail-label">⏰ Hết hạn lúc</span>
-                        <span className="qr-detail-value">{new Date(qrPayment.expires_at).toLocaleTimeString("vi-VN")}</span>
+                        <span className="qr-detail-label">⏰ Thời gian còn lại</span>
+                        <span className="qr-detail-value qr-countdown">
+                          {timeLeft !== null ? (
+                            <>
+                              {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:
+                              {(timeLeft % 60).toString().padStart(2, '0')}
+                            </>
+                          ) : (
+                            new Date(qrPayment.expires_at).toLocaleTimeString("vi-VN")
+                          )}
+                        </span>
                       </div>
                     </div>
 
                     <div className="qr-payment-actions">
                       <button
                         className="btn btn-primary btn-confirm-payment"
-                        onClick={() => {
-                          clearCart();
-                          router.push("/checkout/success?pending=true&code=" + qrPayment.booking_code);
+                        onClick={async () => {
+                          try {
+                            // Gọi API xác nhận đã chuyển khoản
+                            const res = await fetch("/api/payments/confirm-transfer", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ 
+                                transaction_id: qrPayment.transaction_id 
+                              })
+                            });
+                            
+                            const data = await res.json();
+                            
+                            if (!res.ok) {
+                              alert(data.error || "Lỗi xác nhận thanh toán");
+                              return;
+                            }
+                            
+                            // Xóa pending payment khi xác nhận thành công
+                            localStorage.removeItem("lmk_pending_payment");
+                            if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                            clearCart();
+                            router.push("/checkout/success?pending=true&code=" + qrPayment.booking_code);
+                          } catch (error) {
+                            console.error("Error confirming transfer:", error);
+                            alert("Lỗi xác nhận thanh toán. Vui lòng thử lại.");
+                          }
                         }}
                       >
                         ✅ Tôi đã chuyển khoản
                       </button>
+                      <button
+                        className="btn btn-secondary btn-cancel-payment"
+                        onClick={() => {
+                          if (confirm("Bạn có chắc muốn hủy thanh toán? Đơn hàng sẽ bị hủy.")) {
+                            localStorage.removeItem("lmk_pending_payment");
+                            if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                            setQrPayment(null);
+                            setBookingIds([]);
+                            setSavedCartData(null);
+                            setTimeLeft(null);
+                            setCheckingPayment(false);
+                          }
+                        }}
+                      >
+                        ❌ Hủy thanh toán
+                      </button>
                       <p className="qr-payment-note">
                         Sau khi bấm xác nhận, nhân viên sẽ kiểm tra và cập nhật trạng thái đơn hàng của bạn.
+                        <br />
+                        <strong>Lưu ý:</strong> Bạn có thể rời trang và quay lại để tiếp tục thanh toán trong thời gian còn lại.
                       </p>
                     </div>
 
