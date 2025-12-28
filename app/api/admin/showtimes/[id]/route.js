@@ -58,8 +58,6 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const user = await getCurrentUser();
-    console.log("DELETE showtime - user:", user?.email, "roles:", user?.roles);
-    
     const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
     if (!user || !isAdminOrStaff) {
       return NextResponse.json({ error: "Vui lòng đăng nhập lại" }, { status: 401 });
@@ -67,10 +65,14 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
     
+    // Check if showtime exists
+    const showtime = await prisma.showtimes.findUnique({ where: { id: BigInt(id) } });
+    if (!showtime) {
+      return NextResponse.json({ success: true, message: "Suất chiếu đã được xóa" });
+    }
+    
     // Check if there are any bookings
     const bookings = await prisma.bookings.count({ where: { showtime_id: BigInt(id) } });
-    console.log("DELETE showtime - id:", id, "bookings:", bookings);
-    
     if (bookings > 0) {
       return NextResponse.json({ error: `Không thể xóa - có ${bookings} đơn đặt vé` }, { status: 400 });
     }
@@ -80,7 +82,7 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ success: true, message: "Đã xóa suất chiếu" });
   } catch (error) {
     console.error("DELETE /api/admin/showtimes/[id] error:", error);
-    return NextResponse.json({ error: error.message || "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }
 }
 
