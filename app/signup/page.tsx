@@ -8,22 +8,19 @@ export default function SignupPage() {
     const phoneRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        let iti: any;
+        let iti: ReturnType<typeof import("intl-tel-input").default> | null = null;
         (async () => {
             const intlTelInput = (await import("intl-tel-input")).default;
             if (phoneRef.current) {
                 iti = intlTelInput(phoneRef.current, {
                     initialCountry: "vn",
                     separateDialCode: true,
-                    preferredCountries: ["vn", "us", "gb", "au", "de", "fr", "jp", "kr"],
                     nationalMode: false,
-                    // utils cần URL, dùng CDN cho nhanh. Nếu muốn offline: copy utils.js vào /public và đổi URL.
-                    utilsScript:
-                        "https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js",
+                    loadUtils: () => import("intl-tel-input/utils"),
                 });
             }
         })();
-        return () => { /* unmount cleanup nếu cần */ };
+        return () => { iti?.destroy(); };
     }, []);
 
     const togglePassword = (id: string) => {
@@ -92,9 +89,9 @@ export default function SignupPage() {
             valid = false; email.classList.add("error");
             setErr("emailError", "Email không hợp lệ.");
         }
-        // intl-tel-input validate (dùng API qua window)
-        const iti = (window as any).intlTelInputGlobals?.instances?.find((i: any) => i.a === phone);
-        if (!phone.value.trim() || !iti || !iti.isValidNumber()) {
+        // intl-tel-input validate
+        const itiInstance = (window as any).intlTelInputGlobals?.getInstance(phone);
+        if (!phone.value.trim() || !itiInstance || !itiInstance.isValidNumber()) {
             valid = false; phone.classList.add("error");
             setErr("phoneError", "Số điện thoại không hợp lệ cho quốc gia đã chọn.");
         }
@@ -113,10 +110,10 @@ export default function SignupPage() {
 
         if (!valid) return;
 
-        const phoneE164 = iti.getNumber(); // số chuẩn E.164
+        const phoneE164 = itiInstance?.getNumber() || phone.value; // số chuẩn E.164
         alert(`Đăng ký thành công!\nSố E.164: ${phoneE164}`);
         (e.target as HTMLFormElement).reset();
-        iti.setCountry("vn");
+        itiInstance?.setCountry("vn");
     };
 
     return (

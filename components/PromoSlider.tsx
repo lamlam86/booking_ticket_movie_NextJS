@@ -7,10 +7,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const promos = ["1", "2", "3", "4", "5", "6"].map((n) => ({
-  media: `/assets/images/Khuyen mai ${n}.webp`,
-  name: `Khuyến mãi ${n}`,
-}));
+const promos = [
+  { media: "/assets/images/Khuyen mai 1.webp", name: "Khuyến mãi 1" },
+  { media: "/assets/images/khuyen mai 2.webp", name: "Khuyến mãi 2" },
+  { media: "/assets/images/Khuyen mai 3.webp", name: "Khuyến mãi 3" },
+  { media: "/assets/images/khuyen mai 4.webp", name: "Khuyến mãi 4" },
+];
 
 export default function PromoSlider() {
   return (

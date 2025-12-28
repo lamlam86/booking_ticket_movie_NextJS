@@ -10,7 +10,6 @@ export default function BannerSlider() {
   const slides = [
     { media: "/assets/images/banner-web.jpg", name: "Banner 1" },
     { media: "/assets/images/web-banner-chung.jpg", name: "Banner 2" },
-    { media: "/assets/images/banner3.jpg", name: "Banner 3" },
   ];
 
   return (
