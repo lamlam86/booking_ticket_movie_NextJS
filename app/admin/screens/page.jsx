@@ -2,11 +2,7 @@
 import { useState, useEffect } from "react";
 
 const SCREEN_TYPES = {
-  standard: "Tiêu chuẩn",
-  vip: "VIP",
-  imax: "IMAX",
-  dx4: "4DX",
-  premium: "Premium"
+  standard: "Phòng chiếu"
 };
 
 const STATUS_OPTIONS = {
@@ -234,7 +230,6 @@ export default function AdminScreensPage() {
             <thead>
               <tr>
                 <th>Tên phòng</th>
-                <th>Loại phòng</th>
                 <th>Kích thước</th>
                 <th>Số ghế</th>
                 <th>Suất chiếu</th>
@@ -244,16 +239,11 @@ export default function AdminScreensPage() {
             </thead>
             <tbody>
               {screens.length === 0 ? (
-                <tr><td colSpan="7" className="admin-empty">Chưa có phòng chiếu nào</td></tr>
+                <tr><td colSpan="6" className="admin-empty">Chưa có phòng chiếu nào</td></tr>
               ) : (
                 screens.map(screen => (
                   <tr key={screen.id}>
                     <td><strong>{screen.name}</strong></td>
-                    <td>
-                      <span className={`admin-badge admin-badge--${screen.type === 'imax' ? 'primary' : screen.type === 'vip' ? 'warning' : 'default'}`}>
-                        {SCREEN_TYPES[screen.type] || screen.type}
-                      </span>
-                    </td>
                     <td>{screen.seatRows} hàng × {screen.seatCols} cột</td>
                     <td>
                       <strong>{screen.totalSeats}</strong>
@@ -323,22 +313,9 @@ export default function AdminScreensPage() {
                   type="text"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="VD: Rạp 01, Phòng VIP..."
+                  placeholder="VD: Rạp 01, Rạp 02..."
                   required
                 />
-              </div>
-
-              <div className="admin-form-group">
-                <label>Loại phòng *</label>
-                <select
-                  value={formData.type}
-                  onChange={e => setFormData({ ...formData, type: e.target.value })}
-                  required
-                >
-                  {Object.entries(SCREEN_TYPES).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
