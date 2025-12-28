@@ -13,10 +13,9 @@ export async function PATCH(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const { start_time, base_price, language, subtitle, status } = body;
+    const { start_time, language, subtitle, status } = body;
 
     const updateData = {};
-    if (base_price !== undefined) updateData.base_price = base_price;
     if (language !== undefined) updateData.language = language;
     if (subtitle !== undefined) updateData.subtitle = subtitle;
     if (status) updateData.status = status;

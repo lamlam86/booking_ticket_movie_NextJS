@@ -18,7 +18,7 @@ export default function AdminShowtimesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingShowtime, setEditingShowtime] = useState(null);
   const [formData, setFormData] = useState({
-    movie_id: "", screen_id: "", start_time: "", base_price: 65000, language: "Tiếng Việt", subtitle: ""
+    movie_id: "", screen_id: "", start_time: "", language: "Tiếng Việt", subtitle: ""
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -71,7 +71,7 @@ export default function AdminShowtimesPage() {
 
   function openCreateModal() {
     setEditingShowtime(null);
-    setFormData({ movie_id: "", screen_id: "", start_time: "", base_price: 65000, language: "Tiếng Việt", subtitle: "" });
+    setFormData({ movie_id: "", screen_id: "", start_time: "", language: "Tiếng Việt", subtitle: "" });
     setShowModal(true);
   }
 
@@ -85,7 +85,6 @@ export default function AdminShowtimesPage() {
       movie_id: showtime.movie.id.toString(),
       screen_id: showtime.screen.id.toString(),
       start_time: localTime,
-      base_price: showtime.base_price,
       language: showtime.language || "Tiếng Việt",
       subtitle: showtime.subtitle || ""
     });
@@ -212,7 +211,7 @@ export default function AdminShowtimesPage() {
                   <th>Phim</th>
                   <th>Rạp / Phòng</th>
                   <th>Thời gian</th>
-                  <th>Giá vé</th>
+                  <th>Ngôn ngữ</th>
                   <th>Đặt vé</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
@@ -249,7 +248,12 @@ export default function AdminShowtimesPage() {
                           </div>
                         </div>
                       </td>
-                      <td><strong>{showtime.base_price.toLocaleString()}đ</strong></td>
+                      <td>
+                        <div>
+                          <span>{showtime.language || "-"}</span>
+                          {showtime.subtitle && <div style={{fontSize: "0.8rem", color: "var(--text-muted)"}}>Sub: {showtime.subtitle}</div>}
+                        </div>
+                      </td>
                       <td>{showtime.bookings_count}</td>
                       <td>
                         <select
@@ -332,11 +336,6 @@ export default function AdminShowtimesPage() {
                 <div className="admin-form-group">
                   <label>Thời gian bắt đầu *</label>
                   <input type="datetime-local" value={formData.start_time} onChange={e => setFormData({...formData, start_time: e.target.value})} required />
-                </div>
-                
-                <div className="admin-form-group">
-                  <label>Giá vé *</label>
-                  <input type="number" value={formData.base_price} onChange={e => setFormData({...formData, base_price: parseInt(e.target.value)})} required min={0} />
                 </div>
                 
                 <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16}}>
