@@ -14,7 +14,7 @@ export default function MyTicketsPage() {
   useEffect(() => {
     async function fetchBookings() {
       try {
-        const res = await fetch("/api/bookings");
+        const res = await fetch(`/api/bookings?_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.error === "Chưa đăng nhập") {
@@ -60,22 +60,32 @@ export default function MyTicketsPage() {
 
   const displayedBookings = activeTab === "upcoming" ? upcomingBookings : pastBookings;
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "confirmed": return "green";
-      case "reserved": return "yellow";
-      case "cancelled": return "red";
-      default: return "gray";
-    }
+  const getStatusColor = (booking) => {
+    // Check payment_status first
+    if (booking.payment_status === "paid") return "green";
+    if (booking.payment_status === "refunded") return "blue";
+    if (booking.payment_status === "failed") return "red";
+    
+    // Then check booking status
+    if (booking.status === "confirmed") return "green";
+    if (booking.status === "cancelled") return "red";
+    if (booking.status === "reserved") return "yellow";
+    
+    return "gray";
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "confirmed": return "Đã xác nhận";
-      case "reserved": return "Chờ thanh toán";
-      case "cancelled": return "Đã hủy";
-      default: return status;
-    }
+  const getStatusText = (booking) => {
+    // Check payment_status first
+    if (booking.payment_status === "paid") return "Đã thanh toán";
+    if (booking.payment_status === "refunded") return "Đã hoàn tiền";
+    if (booking.payment_status === "failed") return "Thanh toán thất bại";
+    
+    // Then check booking status
+    if (booking.status === "confirmed") return "Đã xác nhận";
+    if (booking.status === "cancelled") return "Đã hủy";
+    if (booking.status === "reserved") return "Chờ thanh toán";
+    
+    return booking.status;
   };
 
   return (
@@ -120,8 +130,8 @@ export default function MyTicketsPage() {
                   <div className="ticket-card__info">
                     <div className="ticket-card__header">
                       <h3 className="ticket-card__movie">{booking.movie}</h3>
-                      <span className={`ticket-card__status ticket-card__status--${getStatusColor(booking.status)}`}>
-                        {getStatusText(booking.status)}
+                      <span className={`ticket-card__status ticket-card__status--${getStatusColor(booking)}`}>
+                        {getStatusText(booking)}
                       </span>
                     </div>
                     <div className="ticket-card__details">

@@ -6519,6 +6519,11 @@ button {
   color: #ef4444;
 }
 
+.ticket-card__status--blue {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
 .ticket-card__details {
   display: flex;
   flex-direction: column;
