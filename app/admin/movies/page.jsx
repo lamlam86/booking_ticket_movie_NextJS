@@ -479,17 +479,6 @@ export default function AdminMoviesPage() {
                 />
               </div>
 
-              <div className="admin-form-group admin-form-checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={form.isFeatured}
-                    onChange={e => setForm({...form, isFeatured: e.target.checked})}
-                  />
-                  ⭐ Phim nổi bật (hiện banner trang chủ)
-                </label>
-              </div>
-
               <div className="admin-modal__footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Hủy</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
