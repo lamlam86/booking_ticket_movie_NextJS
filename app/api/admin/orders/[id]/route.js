@@ -19,7 +19,16 @@ export async function PATCH(request, { params }) {
 
     // Build update data
     const updateData = {};
-    if (payment_status) updateData.payment_status = payment_status;
+    if (payment_status) {
+      updateData.payment_status = payment_status;
+      // Auto update booking status based on payment status
+      if (payment_status === "paid") {
+        updateData.status = "confirmed";
+        updateData.paid_at = new Date();
+      } else if (payment_status === "refunded") {
+        updateData.status = "cancelled";
+      }
+    }
     if (status) updateData.status = status;
     if (payment_method) updateData.payment_method = payment_method;
     if (notes !== undefined) updateData.notes = notes;
