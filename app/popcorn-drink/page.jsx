@@ -99,16 +99,15 @@ export default function PopcornDrinkPage() {
 
   const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
 
-  // Get image for concession
-  const getConcessionImage = (name) => {
-    const nameLower = name.toLowerCase();
-    if (nameLower.includes("sprite")) return "🥤";
-    if (nameLower.includes("fanta")) return "🥤";
-    if (nameLower.includes("coke") || nameLower.includes("coca")) return "🥤";
-    if (nameLower.includes("pepsi")) return "🥤";
-    if (nameLower.includes("combo") || nameLower.includes("bắp")) return "🍿";
-    if (nameLower.includes("nachos")) return "🌮";
-    return "🍿";
+  // Get fallback emoji for concession
+  const getConcessionEmoji = (type) => {
+    switch (type) {
+      case 'drink': return "🥤";
+      case 'popcorn': return "🍿";
+      case 'combo': return "🍿";
+      case 'snack': return "🌮";
+      default: return "🍿";
+    }
   };
 
   if (loading) {
@@ -156,7 +155,11 @@ export default function PopcornDrinkPage() {
                 {concessions.combo.map((item) => (
                   <div key={item.id} className="popcorn-card">
                     <div className="popcorn-card__image">
-                      <span className="popcorn-card__emoji">{getConcessionImage(item.name)}</span>
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} />
+                      ) : (
+                        <span className="popcorn-card__emoji">{getConcessionEmoji('combo')}</span>
+                      )}
                     </div>
                     <div className="popcorn-card__info">
                       <h3 className="popcorn-card__name">{item.name}</h3>
@@ -192,7 +195,11 @@ export default function PopcornDrinkPage() {
                 {concessions.drink.map((item) => (
                   <div key={item.id} className="popcorn-card popcorn-card--drink">
                     <div className="popcorn-card__image">
-                      <span className="popcorn-card__emoji">{getConcessionImage(item.name)}</span>
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} />
+                      ) : (
+                        <span className="popcorn-card__emoji">{getConcessionEmoji('drink')}</span>
+                      )}
                     </div>
                     <div className="popcorn-card__info">
                       <h3 className="popcorn-card__name">{item.name}</h3>
@@ -227,7 +234,11 @@ export default function PopcornDrinkPage() {
                 {concessions.popcorn.map((item) => (
                   <div key={item.id} className="popcorn-card">
                     <div className="popcorn-card__image">
-                      <span className="popcorn-card__emoji">🍿</span>
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} />
+                      ) : (
+                        <span className="popcorn-card__emoji">{getConcessionEmoji('popcorn')}</span>
+                      )}
                     </div>
                     <div className="popcorn-card__info">
                       <h3 className="popcorn-card__name">{item.name}</h3>
@@ -263,7 +274,11 @@ export default function PopcornDrinkPage() {
                 {concessions.snack.map((item) => (
                   <div key={item.id} className="popcorn-card">
                     <div className="popcorn-card__image">
-                      <span className="popcorn-card__emoji">🌮</span>
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} />
+                      ) : (
+                        <span className="popcorn-card__emoji">{getConcessionEmoji('snack')}</span>
+                      )}
                     </div>
                     <div className="popcorn-card__info">
                       <h3 className="popcorn-card__name">{item.name}</h3>
