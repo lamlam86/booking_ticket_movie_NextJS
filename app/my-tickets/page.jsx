@@ -55,36 +55,24 @@ export default function MyTicketsPage() {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
-  // Generate QR code URL with ticket info
+  // Generate QR code URL - points to ticket page
   const getQRCodeUrl = (booking) => {
-    const ticketInfo = JSON.stringify({
-      code: booking.booking_code,
-      movie: booking.movie,
-      showtime: booking.showtime,
-      seats: booking.seats.join(", "),
-      branch: booking.branch,
-      screen: booking.screen
-    });
-    
-    // Use QR Server API to generate QR code
-    const qrData = encodeURIComponent(ticketInfo);
+    // QR code links to ticket page for scanning
+    const ticketUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${booking.booking_code}`;
+    const qrData = encodeURIComponent(ticketUrl);
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`;
   };
 
   // Generate larger QR for modal
   const getLargeQRCodeUrl = (booking) => {
-    const ticketInfo = JSON.stringify({
-      code: booking.booking_code,
-      movie: booking.movie,
-      showtime: booking.showtime,
-      seats: booking.seats.join(", "),
-      branch: booking.branch,
-      screen: booking.screen,
-      total: booking.total_amount
-    });
-    
-    const qrData = encodeURIComponent(ticketInfo);
+    const ticketUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${booking.booking_code}`;
+    const qrData = encodeURIComponent(ticketUrl);
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
+  };
+
+  // Check if ticket is paid
+  const isPaid = (booking) => {
+    return booking.payment_status === "paid" || booking.status === "confirmed";
   };
 
   const now = new Date();
@@ -202,19 +190,28 @@ export default function MyTicketsPage() {
                     </div>
                   </div>
                   
-                  {/* QR Code */}
-                  <div 
-                    className="ticket-card__qr"
-                    onClick={() => setSelectedTicket(booking)}
-                    title="Nhấn để phóng to"
-                  >
-                    <img 
-                      src={getQRCodeUrl(booking)} 
-                      alt="QR Code" 
-                      className="ticket-qr-image"
-                    />
-                    <span className="ticket-qr-label">Quét mã</span>
-                  </div>
+                  {/* QR Code - Only show for paid tickets */}
+                  {isPaid(booking) ? (
+                    <div 
+                      className="ticket-card__qr"
+                      onClick={() => setSelectedTicket(booking)}
+                      title="Nhấn để phóng to"
+                    >
+                      <img 
+                        src={getQRCodeUrl(booking)} 
+                        alt="QR Code" 
+                        className="ticket-qr-image"
+                      />
+                      <span className="ticket-qr-label">Quét mã</span>
+                    </div>
+                  ) : (
+                    <div className="ticket-card__qr ticket-card__qr--pending">
+                      <div className="ticket-qr-pending">
+                        <span>⏳</span>
+                        <span>Chờ thanh toán</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -262,8 +259,16 @@ export default function MyTicketsPage() {
                 </div>
 
                 <p className="qr-modal__note">
-                  Đưa mã QR này cho nhân viên để vào rạp
+                  Quét mã QR này để xem vé điện tử đầy đủ
                 </p>
+                
+                <a 
+                  href={`/ticket/${selectedTicket.booking_code}`} 
+                  target="_blank"
+                  className="qr-modal__link"
+                >
+                  Xem vé điện tử →
+                </a>
               </div>
             </div>
           </div>
