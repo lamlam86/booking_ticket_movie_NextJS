@@ -59,15 +59,40 @@ export async function GET(request, { params }) {
       return acc;
     }, {});
 
+    // Get ticket prices for this screen type
+    const screenType = showtime.screen.type;
+    const startDate = new Date(showtime.start_time);
+    const dayOfWeek = startDate.getDay();
+    const dayType = (dayOfWeek === 0 || dayOfWeek === 6) ? "weekend" : "weekday";
+    
+    const ticketPrices = await prisma.ticket_prices.findMany({
+      where: {
+        screen_type: screenType,
+        day_type: dayType,
+        is_active: true
+      }
+    });
+
+    // Build price map
+    const priceMap = {};
+    ticketPrices.forEach(tp => {
+      priceMap[tp.seat_type] = Number(tp.price);
+    });
+
+    // Default base price from standard seat
+    const basePrice = priceMap["standard"] || 65000;
+
     return NextResponse.json({
       screen: {
         id: showtime.screen.id,
         name: showtime.screen.name,
+        type: showtime.screen.type,
         seat_rows: showtime.screen.seat_rows,
         seat_cols: showtime.screen.seat_cols,
       },
       seats: seatsByRow,
-      base_price: Number(showtime.base_price),
+      base_price: basePrice,
+      price_map: priceMap,
     });
   } catch (error) {
     console.error("GET /api/showtimes/[id]/seats error:", error);
