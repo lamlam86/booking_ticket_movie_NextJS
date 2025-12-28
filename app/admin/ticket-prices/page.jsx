@@ -11,9 +11,7 @@ const SCREEN_TYPES = {
 
 const SEAT_TYPES = {
   standard: "Ghế thường",
-  vip: "Ghế VIP",
-  couple: "Ghế đôi",
-  disabled: "Ghế khuyết tật"
+  vip: "Ghế VIP"
 };
 
 const DAY_TYPES = {

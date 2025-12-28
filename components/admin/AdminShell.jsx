@@ -15,7 +15,6 @@ const BASE_NAV_SECTIONS = [
     items: [
       { label: 'Quản lý phim', href: '/admin/movies' },
       { label: 'Quản lý lịch chiếu', href: '/admin/showtimes' },
-      { label: 'Quản lý vé', href: '/admin/tickets' },
       { label: 'Bảng giá vé', href: '/admin/ticket-prices' },
       { label: 'Quản lý rạp', href: '/admin/cinemas' },
       { label: 'Quản lý phòng chiếu', href: '/admin/screens' },

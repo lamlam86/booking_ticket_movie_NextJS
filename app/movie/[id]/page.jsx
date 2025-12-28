@@ -661,10 +661,6 @@ export default function MovieDetailPage() {
                       <span>Ghế VIP</span>
                     </div>
                     <div className="legend-item">
-                      <span className="legend-seat legend-seat--couple"></span>
-                      <span>Ghế Đôi</span>
-                    </div>
-                    <div className="legend-item">
                       <span className="legend-seat legend-seat--selected"></span>
                       <span>Ghế chọn</span>
                     </div>
