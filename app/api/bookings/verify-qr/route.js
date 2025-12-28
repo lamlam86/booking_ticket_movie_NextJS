@@ -71,15 +71,28 @@ export async function POST(request) {
       );
     }
 
+    // Helper để tạo booking info chi tiết
+    const getBookingInfo = () => ({
+      id: Number(booking.id),
+      booking_code: booking.booking_code,
+      movie: booking.showtime?.movie?.title || "N/A",
+      branch: booking.showtime?.screen?.branch?.name || "N/A",
+      screen: booking.showtime?.screen?.name || "N/A",
+      showtime: booking.showtime?.start_time,
+      seats: booking.booking_items?.map((item) => item.seat?.seat_code) || [],
+      customer_name: booking.user?.full_name || "Khách vãng lai",
+      customer_email: booking.user?.email || null,
+      total_amount: Number(booking.total_amount),
+      payment_status: booking.payment_status,
+      status: booking.status,
+    });
+
     // Kiểm tra trạng thái
     if (booking.payment_status !== "paid") {
       return NextResponse.json({
         valid: false,
         error: "Vé chưa được thanh toán",
-        booking: {
-          booking_code: booking.booking_code,
-          payment_status: booking.payment_status,
-        },
+        booking: getBookingInfo(),
       });
     }
 
@@ -87,10 +100,7 @@ export async function POST(request) {
       return NextResponse.json({
         valid: false,
         error: "Vé đã bị hủy",
-        booking: {
-          booking_code: booking.booking_code,
-          status: booking.status,
-        },
+        booking: getBookingInfo(),
       });
     }
 
@@ -105,10 +115,7 @@ export async function POST(request) {
       return NextResponse.json({
         valid: false,
         error: "Vé đã hết hạn (quá 30 phút sau giờ chiếu)",
-        booking: {
-          booking_code: booking.booking_code,
-          showtime: booking.showtime.start_time,
-        },
+        booking: getBookingInfo(),
       });
     }
 
@@ -116,12 +123,8 @@ export async function POST(request) {
       // Còn quá sớm (hơn 60 phút trước giờ chiếu)
       return NextResponse.json({
         valid: false,
-        warning: "Vé có thể quét trước 60 phút giờ chiếu",
-        booking: {
-          booking_code: booking.booking_code,
-          showtime: booking.showtime.start_time,
-          minutes_until_showtime: Math.round(minutesDiff),
-        },
+        error: `Còn quá sớm (${Math.round(minutesDiff)} phút trước giờ chiếu)`,
+        booking: getBookingInfo(),
       });
     }
 
