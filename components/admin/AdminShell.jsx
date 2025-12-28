@@ -34,12 +34,6 @@ const BASE_NAV_SECTIONS = [
       { label: 'Khuyến mãi', href: '/admin/promotions' },
     ],
   },
-  {
-    title: 'Giao diện',
-    items: [
-      { label: 'Quản lý Banner', href: '/admin/banners' },
-    ],
-  },
 ];
 
 // Admin-only section
