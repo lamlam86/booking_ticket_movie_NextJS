@@ -53,7 +53,7 @@ CROSS JOIN (SELECT 1 as n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SEL
 ORDER BY s.id, r.n, c.n;
 
 -- =============================================
--- 4. BẢNG GIÁ VÉ THEO LOẠI PHÒNG/GHẾ/NGÀY
+-- 4. BẢNG GIÁ VÉ (CHỈ STANDARD VÀ VIP)
 -- =============================================
 DELETE FROM `ticket_prices`;
 
@@ -61,57 +61,32 @@ INSERT INTO `ticket_prices` (`screen_type`, `seat_type`, `day_type`, `price`, `i
 -- Standard screen
 ('standard', 'standard', 'weekday', 59000, true, NOW(), NOW()),
 ('standard', 'standard', 'weekend', 69000, true, NOW(), NOW()),
-('standard', 'standard', 'holiday', 79000, true, NOW(), NOW()),
 ('standard', 'vip', 'weekday', 79000, true, NOW(), NOW()),
 ('standard', 'vip', 'weekend', 89000, true, NOW(), NOW()),
-('standard', 'vip', 'holiday', 99000, true, NOW(), NOW()),
-('standard', 'couple', 'weekday', 139000, true, NOW(), NOW()),
-('standard', 'couple', 'weekend', 159000, true, NOW(), NOW()),
-('standard', 'couple', 'holiday', 179000, true, NOW(), NOW()),
 
 -- VIP screen
 ('vip', 'standard', 'weekday', 79000, true, NOW(), NOW()),
 ('vip', 'standard', 'weekend', 89000, true, NOW(), NOW()),
-('vip', 'standard', 'holiday', 99000, true, NOW(), NOW()),
 ('vip', 'vip', 'weekday', 99000, true, NOW(), NOW()),
 ('vip', 'vip', 'weekend', 109000, true, NOW(), NOW()),
-('vip', 'vip', 'holiday', 119000, true, NOW(), NOW()),
-('vip', 'couple', 'weekday', 179000, true, NOW(), NOW()),
-('vip', 'couple', 'weekend', 199000, true, NOW(), NOW()),
-('vip', 'couple', 'holiday', 219000, true, NOW(), NOW()),
 
 -- IMAX screen
 ('imax', 'standard', 'weekday', 99000, true, NOW(), NOW()),
 ('imax', 'standard', 'weekend', 119000, true, NOW(), NOW()),
-('imax', 'standard', 'holiday', 139000, true, NOW(), NOW()),
 ('imax', 'vip', 'weekday', 129000, true, NOW(), NOW()),
 ('imax', 'vip', 'weekend', 149000, true, NOW(), NOW()),
-('imax', 'vip', 'holiday', 169000, true, NOW(), NOW()),
-('imax', 'couple', 'weekday', 239000, true, NOW(), NOW()),
-('imax', 'couple', 'weekend', 279000, true, NOW(), NOW()),
-('imax', 'couple', 'holiday', 319000, true, NOW(), NOW()),
 
 -- 4DX screen
 ('4dx', 'standard', 'weekday', 129000, true, NOW(), NOW()),
 ('4dx', 'standard', 'weekend', 149000, true, NOW(), NOW()),
-('4dx', 'standard', 'holiday', 169000, true, NOW(), NOW()),
 ('4dx', 'vip', 'weekday', 159000, true, NOW(), NOW()),
 ('4dx', 'vip', 'weekend', 179000, true, NOW(), NOW()),
-('4dx', 'vip', 'holiday', 199000, true, NOW(), NOW()),
-('4dx', 'couple', 'weekday', 299000, true, NOW(), NOW()),
-('4dx', 'couple', 'weekend', 339000, true, NOW(), NOW()),
-('4dx', 'couple', 'holiday', 379000, true, NOW(), NOW()),
 
 -- Premium screen
 ('premium', 'standard', 'weekday', 89000, true, NOW(), NOW()),
 ('premium', 'standard', 'weekend', 99000, true, NOW(), NOW()),
-('premium', 'standard', 'holiday', 109000, true, NOW(), NOW()),
 ('premium', 'vip', 'weekday', 109000, true, NOW(), NOW()),
-('premium', 'vip', 'weekend', 119000, true, NOW(), NOW()),
-('premium', 'vip', 'holiday', 129000, true, NOW(), NOW()),
-('premium', 'couple', 'weekday', 199000, true, NOW(), NOW()),
-('premium', 'couple', 'weekend', 219000, true, NOW(), NOW()),
-('premium', 'couple', 'holiday', 239000, true, NOW(), NOW());
+('premium', 'vip', 'weekend', 119000, true, NOW(), NOW());
 
 -- =============================================
 -- 5. TẠO SUẤT CHIẾU MẪU (7 ngày tới)
