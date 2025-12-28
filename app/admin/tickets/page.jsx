@@ -122,12 +122,14 @@ export default function AdminTicketsPage() {
     }
   }
 
-  // Group seats by row
+  // Group seats by row and sort
   const seatsByRow = ticketData?.seats?.reduce((acc, seat) => {
     if (!acc[seat.row]) acc[seat.row] = [];
     acc[seat.row].push(seat);
     return acc;
   }, {}) || {};
+  
+  const sortedRows = Object.keys(seatsByRow).sort();
 
   return (
     <div className="admin-stack">
@@ -208,66 +210,61 @@ export default function AdminTicketsPage() {
           {/* Seat Map */}
           <div className="admin-card" style={{ padding: 24, marginBottom: 24 }}>
             <h3 style={{ marginBottom: 16, textAlign: "center" }}>Sơ đồ ghế</h3>
-            <div style={{ textAlign: "center", marginBottom: 16, padding: "8px 0", background: "var(--admin-border)", borderRadius: 4 }}>
-              MÀN HÌNH
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-              {Object.entries(seatsByRow).map(([row, seats]) => (
-                <div key={row} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <span style={{ width: 24, textAlign: "center", fontWeight: 600 }}>{row}</span>
-                  {seats.map(seat => (
-                    <button
-                      key={seat.id}
-                      onClick={() => toggleSeat(seat)}
-                      disabled={seat.isBooked}
-                      title={`${seat.code} - ${SEAT_TYPE_LABELS[seat.type]} - ${seat.price?.toLocaleString()}đ${seat.isBooked ? " (Đã đặt)" : ""}`}
-                      style={{
-                        width: 36,
-                        height: 36,
-                        border: "none",
-                        borderRadius: 4,
-                        cursor: seat.isBooked ? "not-allowed" : "pointer",
-                        fontSize: 11,
-                        fontWeight: 500,
-                        background: seat.isBooked 
-                          ? "#e74c3c" 
-                          : selectedSeats.includes(seat.id)
-                            ? "#9b59b6"
-                            : seat.type === "vip" 
-                              ? "#f39c12" 
-                              : seat.type === "couple"
-                                ? "#e91e63"
-                                : "#3498db",
-                        color: "#fff",
-                        opacity: seat.isBooked ? 0.6 : 1
-                      }}
-                    >
-                      {seat.number}
-                    </button>
-                  ))}
+            <div className="seat-map-container">
+              <div className="screen-container">
+                <div className="screen">Màn hình</div>
+              </div>
+
+              <div className="seat-map">
+                {sortedRows.map(row => (
+                  <div key={row} className="seat-row">
+                    <span className="seat-row-label">{row}</span>
+                    <div className="seat-row-seats">
+                      {seatsByRow[row].map(seat => {
+                        const isSelected = selectedSeats.includes(seat.id);
+                        let seatClass = "seat seat--" + seat.type;
+                        if (seat.isBooked) seatClass += " seat--booked";
+                        else if (isSelected) seatClass += " seat--selected";
+                        
+                        return (
+                          <button
+                            key={seat.id}
+                            className={seatClass}
+                            onClick={() => toggleSeat(seat)}
+                            disabled={seat.isBooked}
+                            title={`${seat.code} - ${SEAT_TYPE_LABELS[seat.type]} - ${seat.price?.toLocaleString()}đ${seat.isBooked ? " (Đã đặt)" : ""}`}
+                          >
+                            {String(seat.number).padStart(2, "0")}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <span className="seat-row-label">{row}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="seat-legend">
+                <div className="legend-item">
+                  <span className="legend-seat legend-seat--standard"></span>
+                  <span>Ghế Thường</span>
                 </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 24, justifyContent: "center", marginTop: 24, flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 24, height: 24, background: "#3498db", borderRadius: 4 }}></span>
-                <span>Thường</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 24, height: 24, background: "#f39c12", borderRadius: 4 }}></span>
-                <span>VIP</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 24, height: 24, background: "#e91e63", borderRadius: 4 }}></span>
-                <span>Đôi</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 24, height: 24, background: "#e74c3c", borderRadius: 4, opacity: 0.6 }}></span>
-                <span>Đã đặt</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 24, height: 24, background: "#9b59b6", borderRadius: 4 }}></span>
-                <span>Đang chọn</span>
+                <div className="legend-item">
+                  <span className="legend-seat legend-seat--vip"></span>
+                  <span>Ghế VIP</span>
+                </div>
+                <div className="legend-item">
+                  <span className="legend-seat legend-seat--couple"></span>
+                  <span>Ghế Đôi</span>
+                </div>
+                <div className="legend-item">
+                  <span className="legend-seat legend-seat--selected"></span>
+                  <span>Ghế chọn</span>
+                </div>
+                <div className="legend-item">
+                  <span className="legend-seat legend-seat--booked"></span>
+                  <span>Ghế đã đặt</span>
+                </div>
               </div>
             </div>
           </div>
