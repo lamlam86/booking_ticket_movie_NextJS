@@ -35,7 +35,7 @@ export async function GET(request, { params }) {
     });
   } catch (error) {
     console.error("GET /api/admin/banners/[id] error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Lỗi server" }, { status: 500 });
   }
 }
 
@@ -49,6 +49,12 @@ export async function PATCH(request, { params }) {
     }
 
     const { id } = await params;
+    const bannerId = Number(id);
+    
+    if (isNaN(bannerId)) {
+      return NextResponse.json({ error: "ID không hợp lệ" }, { status: 400 });
+    }
+
     const body = await request.json();
     const { title, image_url, link_url, description, position, is_active } = body;
 
@@ -57,15 +63,25 @@ export async function PATCH(request, { params }) {
     if (image_url !== undefined) updateData.image_url = image_url;
     if (link_url !== undefined) updateData.link_url = link_url;
     if (description !== undefined) updateData.description = description;
-    if (position !== undefined) updateData.position = position;
+    if (position !== undefined) updateData.position = Number(position);
     if (is_active !== undefined) updateData.is_active = is_active;
 
+    // Check if banner exists first
+    const existing = await prisma.banners.findUnique({
+      where: { id: bannerId }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Banner không tồn tại" }, { status: 404 });
+    }
+
     const banner = await prisma.banners.update({
-      where: { id: Number(id) },
+      where: { id: bannerId },
       data: updateData
     });
 
     return NextResponse.json({
+      success: true,
       data: {
         id: banner.id,
         title: banner.title,
@@ -78,7 +94,7 @@ export async function PATCH(request, { params }) {
     });
   } catch (error) {
     console.error("PATCH /api/admin/banners/[id] error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Lỗi cập nhật banner" }, { status: 500 });
   }
 }
 
@@ -86,16 +102,21 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const user = await getCurrentUser();
-    const isAdmin = user?.roles?.includes("admin");
-    if (!user || !isAdmin) {
-      return NextResponse.json({ error: "Chỉ admin mới có quyền xóa" }, { status: 403 });
+    const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
+    if (!user || !isAdminOrStaff) {
+      return NextResponse.json({ error: "Không có quyền xóa" }, { status: 403 });
     }
 
     const { id } = await params;
+    const bannerId = Number(id);
+
+    if (isNaN(bannerId)) {
+      return NextResponse.json({ error: "ID không hợp lệ" }, { status: 400 });
+    }
 
     // Check if banner exists
     const existing = await prisma.banners.findUnique({
-      where: { id: Number(id) }
+      where: { id: bannerId }
     });
 
     if (!existing) {
@@ -103,12 +124,12 @@ export async function DELETE(request, { params }) {
     }
 
     await prisma.banners.delete({
-      where: { id: Number(id) }
+      where: { id: bannerId }
     });
 
     return NextResponse.json({ success: true, message: "Xóa banner thành công" });
   } catch (error) {
     console.error("DELETE /api/admin/banners/[id] error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Lỗi xóa banner" }, { status: 500 });
   }
 }
