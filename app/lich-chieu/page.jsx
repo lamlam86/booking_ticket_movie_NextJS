@@ -165,13 +165,7 @@ export default function SchedulePage() {
   }, {});
 
   const getScreenTypeLabel = (type) => {
-    const labels = {
-      standard: "STANDARD",
-      vip: "VIP",
-      imax: "IMAX",
-      deluxe: "DELUXE"
-    };
-    return labels[type] || type.toUpperCase();
+    return "STANDARD";
   };
 
   return (

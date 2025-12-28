@@ -27,7 +27,6 @@ const TICKET_TYPES = [
   { id: "adult", name: "NGƯỜI LỚN", type: "ĐƠN", priceMultiplier: 1 },
   { id: "student", name: "HSSV-U22-GV", type: "ĐƠN", priceMultiplier: 0.9 },
   { id: "senior", name: "NGƯỜI CAO TUỔI", type: "ĐƠN", priceMultiplier: 0.8 },
-  { id: "couple", name: "NGƯỜI LỚN", type: "ĐÔI", priceMultiplier: 1.8 },
 ];
 
 export default function MovieDetailPage() {
