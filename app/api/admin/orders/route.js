@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Lấy danh sách đơn hàng
 export async function GET(request) {
   try {
+    // Check authentication - only admin and staff can access
+    const user = await getCurrentUser();
+    const isAdminOrStaff = user?.roles?.includes("admin") || user?.roles?.includes("staff");
+    if (!user || !isAdminOrStaff) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const page = parseInt(searchParams.get("page") || "1");

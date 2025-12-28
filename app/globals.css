@@ -2003,6 +2003,119 @@ button {
   color: var(--text-soft);
 }
 
+/* Signup Success Modal */
+.signup-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.signup-success-modal {
+  background: linear-gradient(145deg, #1e0a3c, #2d1654);
+  border-radius: var(--radius-lg);
+  max-width: 450px;
+  width: 100%;
+  padding: 40px 32px;
+  text-align: center;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 25px 80px rgba(139, 92, 246, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+.signup-success-icon {
+  margin-bottom: 20px;
+}
+
+.signup-success-title {
+  font-size: 1.75rem;
+  color: #22c55e;
+  margin: 0 0 8px;
+}
+
+.signup-success-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.signup-success-info {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.signup-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.signup-info-row:last-child {
+  border-bottom: none;
+}
+
+.signup-info-label {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.signup-info-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.signup-success-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.signup-success-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signup-success-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+}
+
+.signup-success-countdown {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.signup-success-countdown strong {
+  color: var(--primary-light);
+  font-size: 1.1rem;
+}
+
 .password-wrapper {
   position: relative;
 }
@@ -8090,6 +8203,223 @@ button {
 
 .admin-action-btn--danger:hover {
   background: rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================= */
+/* SCAN TICKET PAGE                              */
+/* ============================================= */
+.scan-ticket-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .scan-ticket-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scan-ticket-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.scan-ticket-icon {
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+.scan-ticket-card h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.scan-ticket-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 24px;
+}
+
+.scan-ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scan-ticket-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--glass);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+}
+
+.scan-ticket-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.scan-ticket-input::placeholder {
+  font-size: 0.9rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.scan-ticket-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.scan-ticket-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.scan-ticket-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+
+/* Scan Result */
+.scan-ticket-result {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--border);
+}
+
+.scan-ticket-result--success {
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.scan-ticket-result--error {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.scan-result-header {
+  padding: 32px;
+  text-align: center;
+}
+
+.scan-ticket-result--success .scan-result-header {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+}
+
+.scan-ticket-result--error .scan-result-header {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05));
+}
+
+.scan-result-icon {
+  margin-bottom: 16px;
+}
+
+.scan-result-icon--success {
+  color: #22c55e;
+}
+
+.scan-result-icon--error {
+  color: #ef4444;
+}
+
+.scan-result-title {
+  font-size: 1.5rem;
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.scan-result-title--success {
+  color: #22c55e;
+}
+
+.scan-result-title--error {
+  color: #ef4444;
+}
+
+.scan-result-message {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.scan-result-details {
+  padding: 24px;
+}
+
+.scan-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.scan-detail-row:last-child {
+  border-bottom: none;
+}
+
+.scan-detail-row--highlight {
+  background: rgba(139, 92, 246, 0.1);
+  margin: 0 -24px;
+  padding: 14px 24px;
+  border-radius: 0;
+}
+
+.scan-detail-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.scan-detail-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.scan-detail-code {
+  font-family: monospace;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  color: var(--primary-light);
+}
+
+.scan-detail-seats {
+  font-size: 1.1rem;
+  color: var(--primary-light);
 }
 
 /* Admin Filters */
