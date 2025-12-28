@@ -38,7 +38,7 @@ export async function GET(request) {
       prisma.showtimes.count({ where })
     ]);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       data: showtimes.map(s => ({
         id: Number(s.id),
         movie: { id: Number(s.movie.id), title: s.movie.title, poster_url: s.movie.poster_url, duration: s.movie.duration_minutes },
@@ -53,6 +53,8 @@ export async function GET(request) {
       })),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    return response;
   } catch (error) {
     console.error("GET /api/admin/showtimes error:", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
