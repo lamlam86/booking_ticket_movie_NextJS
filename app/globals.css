@@ -9988,8 +9988,27 @@ select.admin-input {
   color: var(--warning);
 }
 
+.qr-countdown {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem !important;
+  font-weight: 700;
+  color: var(--warning) !important;
+  background: rgba(249, 115, 22, 0.15);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .qr-payment-actions {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .btn-confirm-payment {
@@ -9999,7 +10018,6 @@ select.admin-input {
   font-weight: 700;
   background: linear-gradient(135deg, var(--success) 0%, #10b981 100%);
   border: none;
-  margin-bottom: 16px;
 }
 
 .btn-confirm-payment:hover {
@@ -10008,11 +10026,30 @@ select.admin-input {
   box-shadow: 0 8px 24px rgba(52, 211, 153, 0.4);
 }
 
+.btn-cancel-payment {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.btn-cancel-payment:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+  color: var(--error);
+}
+
 .qr-payment-note {
   font-size: 0.85rem;
   color: var(--text-soft);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: var(--radius-sm);
 }
 
 .payment-checking {

@@ -76,9 +76,9 @@ export async function POST(request) {
     // Format: https://img.vietqr.io/image/{BANK_BIN}-{ACCOUNT_NO}-{TEMPLATE}.png?amount={AMOUNT}&addInfo={DESCRIPTION}&accountName={NAME}
     const qrCodeImage = `https://img.vietqr.io/image/${bankBin}-${bankAccount}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
 
-    // Thời gian hết hạn: 15 phút
+    // Thời gian hết hạn: 10 phút
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
     // Kiểm tra xem đã có payment record chưa
     const existingPayment = await prisma.payments.findFirst({

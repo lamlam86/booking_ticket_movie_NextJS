@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { sendTicketEmail } from "@/lib/email";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,8 +18,15 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     const { payment_status, status, payment_method, notes } = body;
 
+    // Lấy booking hiện tại để kiểm tra trạng thái trước khi update
+    const currentBooking = await prisma.bookings.findUnique({
+      where: { id: BigInt(id) },
+      select: { payment_status: true, email_sent: true }
+    });
+
     // Build update data
     const updateData = {};
+    let shouldSendEmail = false;
     
     if (payment_status) {
       updateData.payment_status = payment_status;
@@ -26,6 +34,11 @@ export async function PATCH(request, { params }) {
       if (payment_status === "paid") {
         updateData.status = "confirmed";
         updateData.paid_at = new Date();
+        
+        // Chỉ gửi email nếu trước đó chưa paid và chưa gửi email
+        if (currentBooking?.payment_status !== "paid" && !currentBooking?.email_sent) {
+          shouldSendEmail = true;
+        }
       } else if (payment_status === "pending") {
         updateData.status = "reserved";
         updateData.paid_at = null;
@@ -45,8 +58,62 @@ export async function PATCH(request, { params }) {
 
     const booking = await prisma.bookings.update({
       where: { id: BigInt(id) },
-      data: updateData
+      data: updateData,
+      include: {
+        user: true,
+        booking_items: {
+          include: { seat: true }
+        },
+        showtime: {
+          include: {
+            movie: true,
+            screen: {
+              include: { branch: true }
+            }
+          }
+        }
+      }
     });
+
+    // Gửi email QR code tự động khi xác nhận thanh toán
+    let emailSent = false;
+    if (shouldSendEmail && booking.user?.email) {
+      try {
+        const bookingData = {
+          id: Number(booking.id),
+          booking_code: booking.booking_code,
+          movie: booking.showtime.movie.title,
+          branch: booking.showtime.screen.branch.name,
+          screen: booking.showtime.screen.name,
+          showtime: booking.showtime.start_time,
+          seats: booking.booking_items.map(item => item.seat.seat_code),
+          total_amount: Number(booking.total_amount),
+          payment_method: booking.payment_method,
+        };
+
+        const emailResult = await sendTicketEmail(
+          bookingData,
+          booking.user.email,
+          booking.user.full_name
+        );
+
+        // Cập nhật trạng thái đã gửi email
+        if (emailResult.success) {
+          await prisma.bookings.update({
+            where: { id: BigInt(id) },
+            data: {
+              ticket_qr_code: emailResult.qrCode,
+              email_sent: true,
+              email_sent_at: new Date()
+            }
+          });
+          emailSent = true;
+        }
+      } catch (emailError) {
+        console.error("Error sending ticket email:", emailError);
+        // Không throw error, vẫn tiếp tục xác nhận đơn hàng
+      }
+    }
 
     return NextResponse.json({ 
       success: true,
@@ -56,7 +123,10 @@ export async function PATCH(request, { params }) {
         status: booking.status,
         payment_method: booking.payment_method
       },
-      message: "Cập nhật đơn hàng thành công!"
+      message: emailSent 
+        ? "Xác nhận đơn hàng thành công! Email vé đã được gửi cho khách hàng." 
+        : "Cập nhật đơn hàng thành công!",
+      emailSent
     });
   } catch (error) {
     console.error("PATCH /api/admin/orders/[id] error:", error);
