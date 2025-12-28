@@ -30,9 +30,15 @@ export async function POST(request) {
       );
     }
 
+    // Parse showtime_id to BigInt for database
+    const showtimeIdBigInt = BigInt(showtime_id);
+
     // Kiểm tra suất chiếu
     const showtime = await prisma.showtimes.findUnique({
-      where: { id: Number(showtime_id) },
+      where: { id: showtimeIdBigInt },
+      include: {
+        screen: true,
+      },
     });
 
     if (!showtime) {
@@ -42,12 +48,21 @@ export async function POST(request) {
       );
     }
 
+    // Validate seat_ids
+    const seatIds = seats.map((s) => Number(s.seat_id));
+    if (seatIds.some(isNaN)) {
+      return NextResponse.json(
+        { error: "ID ghế không hợp lệ" },
+        { status: 400 }
+      );
+    }
+
     // Kiểm tra ghế đã được đặt chưa
     const existingBookings = await prisma.booking_items.findMany({
       where: {
-        seat_id: { in: seats.map((s) => s.seat_id) },
+        seat_id: { in: seatIds },
         booking: {
-          showtime_id: Number(showtime_id),
+          showtime_id: showtimeIdBigInt,
           status: { in: ["reserved", "confirmed"] },
         },
       },
@@ -62,8 +77,8 @@ export async function POST(request) {
 
     // Tính tổng tiền vé - price được truyền từ frontend (lấy từ ticket_prices)
     const seatPrices = seats.map((s) => ({
-      seat_id: s.seat_id,
-      price: s.price || 65000, // Giá mặc định nếu không có
+      seat_id: Number(s.seat_id),
+      price: Number(s.price) || 65000,
     }));
     const ticketSubtotal = seatPrices.reduce((sum, s) => sum + s.price, 0);
 
@@ -73,15 +88,20 @@ export async function POST(request) {
 
     if (concessions && concessions.length > 0) {
       for (const item of concessions) {
+        const concessionId = Number(item.concession_id);
+        const quantity = Number(item.quantity);
+        
+        if (isNaN(concessionId) || isNaN(quantity) || quantity <= 0) continue;
+        
         const concession = await prisma.concessions.findUnique({
-          where: { id: item.concession_id },
+          where: { id: concessionId },
         });
         if (concession) {
           const unitPrice = Number(concession.price);
-          concessionSubtotal += unitPrice * item.quantity;
+          concessionSubtotal += unitPrice * quantity;
           concessionItems.push({
-            concession_id: item.concession_id,
-            quantity: item.quantity,
+            concession_id: concessionId,
+            quantity: quantity,
             unit_price: unitPrice,
           });
         }
@@ -89,13 +109,13 @@ export async function POST(request) {
     }
 
     const subtotal = ticketSubtotal + concessionSubtotal;
-    const totalAmount = subtotal; // Có thể thêm discount sau
+    const totalAmount = subtotal;
 
     // Tạo booking
     const booking = await prisma.bookings.create({
       data: {
         user_id: user ? BigInt(user.id) : null,
-        showtime_id: Number(showtime_id),
+        showtime_id: showtimeIdBigInt,
         booking_code: generateBookingCode(),
         subtotal,
         discount: 0,
@@ -146,7 +166,7 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error("POST /api/bookings error:", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Lỗi server: " + error.message }, { status: 500 });
   }
 }
 
@@ -195,6 +215,7 @@ export async function GET(request) {
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }
 }
+
 
 
 

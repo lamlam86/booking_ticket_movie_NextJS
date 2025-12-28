@@ -19,16 +19,26 @@ export async function PATCH(request, { params }) {
 
     // Build update data
     const updateData = {};
+    
     if (payment_status) {
       updateData.payment_status = payment_status;
       // Auto update booking status based on payment status
       if (payment_status === "paid") {
         updateData.status = "confirmed";
         updateData.paid_at = new Date();
+      } else if (payment_status === "pending") {
+        updateData.status = "reserved";
+        updateData.paid_at = null;
       } else if (payment_status === "refunded") {
         updateData.status = "cancelled";
+      } else if (payment_status === "failed") {
+        // Giữ nguyên status hoặc có thể set lại reserved
+        updateData.status = "reserved";
+        updateData.paid_at = null;
       }
     }
+    
+    // Nếu có truyền status riêng thì override
     if (status) updateData.status = status;
     if (payment_method) updateData.payment_method = payment_method;
     if (notes !== undefined) updateData.notes = notes;

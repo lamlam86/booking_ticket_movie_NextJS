@@ -50,13 +50,11 @@ export default async function HomePage() {
         <section className="section">
           <div className="section-header">
             <h2 className="section-heading">PHIM ĐANG CHIẾU</h2>
-            <Link href="/movie" className="section-link">
-              Xem tất cả →
-            </Link>
+           
           </div>
           <div className="movies-grid">
             {nowShowing.map((movie) => (
-              <div key={movie.id.toString()} className="mv-card">
+              <div key={movie.id.toString()} className="mv-card"> 
                 <Link href={`/movie/${movie.id}`} className="mv-card__poster">
                   <MoviePoster poster_url={movie.poster_url} title={movie.title} />
                   
@@ -164,9 +162,6 @@ export default async function HomePage() {
         <section className="section">
           <div className="section-header">
             <h2 className="section-heading">SẮP CHIẾU</h2>
-            <Link href="/movie" className="section-link">
-              Xem tất cả →
-            </Link>
           </div>
           <div className="movies-grid">
             {comingSoon.map((movie) => (

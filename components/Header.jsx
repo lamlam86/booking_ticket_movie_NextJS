@@ -66,8 +66,12 @@ export default function Header() {
     <header className="header" role="banner">
       <div className="header__container">
         <nav className="header__navbar" aria-label="Primary">
-          <Link href="/" className="header__logo" aria-label="Trang chủ">
-            <img src="/assets/images/logo.png" alt="Cinemas" />
+                  <Link href="/" className="header__logo" aria-label="Trang chủ">
+            <img
+              src="/assets/images/logo.png"
+              alt="Cinemas"
+              width={140}
+            />
           </Link>
 
           <div className="header__cta" role="group" aria-label="Đặt nhanh">

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import QRCode from "qrcode";
 
 // Tạo mã QR thanh toán ngân hàng
 export async function POST(request) {
@@ -45,8 +44,8 @@ export async function POST(request) {
       );
     }
 
-    // Kiểm tra quyền truy cập
-    if (booking.user_id && Number(booking.user_id) !== user.id) {
+    // Kiểm tra quyền truy cập - so sánh đúng kiểu BigInt
+    if (booking.user_id && Number(booking.user_id) !== Number(user.id)) {
       return NextResponse.json(
         { error: "Không có quyền truy cập" },
         { status: 403 }
@@ -65,61 +64,59 @@ export async function POST(request) {
     const transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     
     // Thông tin tài khoản ngân hàng (có thể lấy từ env hoặc database)
-    const bankAccount = process.env.BANK_ACCOUNT || "1234567890";
+    const bankAccount = process.env.BANK_ACCOUNT || "0123456789";
     const bankName = process.env.BANK_NAME || "Ngân hàng TMCP Á Châu (ACB)";
     const accountName = process.env.ACCOUNT_NAME || "LMK CINEMA";
+    const bankBin = process.env.BANK_BIN || "970416"; // ACB bank BIN
 
-    // Tạo nội dung QR (theo format VietQR hoặc ngân hàng)
-    const qrData = {
-      accountNo: bankAccount,
-      accountName: accountName,
-      amount: Number(booking.total_amount),
-      addInfo: `LMK-${booking.booking_code}`,
-      template: "compact2",
-    };
+    const amount = Number(booking.total_amount);
+    const addInfo = `LMK${booking.booking_code}`;
 
-    // Tạo chuỗi QR data (format VietQR)
-    const qrString = `00020101021238570010A00000072701270006${bankAccount}0108${accountName}0208QRIBFTTA5303704540${Number(booking.total_amount)}5802VN62${qrData.addInfo.length.toString().padStart(2, '0')}${qrData.addInfo}6304`;
-
-    // Tạo QR code image
-    let qrCodeImage;
-    try {
-      qrCodeImage = await QRCode.toDataURL(qrString, {
-        errorCorrectionLevel: "M",
-        type: "image/png",
-        width: 300,
-        margin: 2,
-      });
-    } catch (error) {
-      // Fallback: tạo QR với thông tin đơn giản hơn
-      const simpleQRString = `${bankAccount}|${accountName}|${Number(booking.total_amount)}|${booking.booking_code}`;
-      qrCodeImage = await QRCode.toDataURL(simpleQRString, {
-        errorCorrectionLevel: "M",
-        type: "image/png",
-        width: 300,
-        margin: 2,
-      });
-    }
+    // Tạo QR code sử dụng VietQR API (img.vietqr.io)
+    // Format: https://img.vietqr.io/image/{BANK_BIN}-{ACCOUNT_NO}-{TEMPLATE}.png?amount={AMOUNT}&addInfo={DESCRIPTION}&accountName={NAME}
+    const qrCodeImage = `https://img.vietqr.io/image/${bankBin}-${bankAccount}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
 
     // Thời gian hết hạn: 15 phút
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 15);
 
-    // Tạo payment record
-    const payment = await prisma.payments.create({
-      data: {
+    // Kiểm tra xem đã có payment record chưa
+    const existingPayment = await prisma.payments.findFirst({
+      where: {
         booking_id: BigInt(booking_id),
-        transaction_id: transactionId,
-        amount: booking.total_amount,
-        bank_account: bankAccount,
-        bank_name: bankName,
-        qr_code: qrCodeImage,
-        qr_data: qrString,
-        payment_method: "bank_transfer",
         status: "pending",
-        expires_at: expiresAt,
       },
     });
+
+    let payment;
+    if (existingPayment) {
+      // Cập nhật payment record hiện có
+      payment = await prisma.payments.update({
+        where: { id: existingPayment.id },
+        data: {
+          transaction_id: transactionId,
+          qr_code: qrCodeImage,
+          qr_data: addInfo,
+          expires_at: expiresAt,
+        },
+      });
+    } else {
+      // Tạo payment record mới
+      payment = await prisma.payments.create({
+        data: {
+          booking_id: BigInt(booking_id),
+          transaction_id: transactionId,
+          amount: booking.total_amount,
+          bank_account: bankAccount,
+          bank_name: bankName,
+          qr_code: qrCodeImage,
+          qr_data: addInfo,
+          payment_method: "bank_transfer",
+          status: "pending",
+          expires_at: expiresAt,
+        },
+      });
+    }
 
     // Cập nhật booking
     await prisma.bookings.update({
@@ -138,8 +135,8 @@ export async function POST(request) {
         id: payment.id.toString(),
         transaction_id: transactionId,
         qr_code: qrCodeImage,
-        qr_data: qrString,
-        amount: Number(booking.total_amount),
+        qr_data: addInfo,
+        amount: amount,
         bank_account: bankAccount,
         bank_name: bankName,
         account_name: accountName,
@@ -150,11 +147,12 @@ export async function POST(request) {
   } catch (error) {
     console.error("Error creating QR code:", error);
     return NextResponse.json(
-      { error: "Lỗi tạo mã QR thanh toán" },
+      { error: "Lỗi tạo mã QR thanh toán: " + error.message },
       { status: 500 }
     );
   }
 }
+
 
 
 

@@ -7,17 +7,19 @@ import { useCart } from "@/contexts/CartContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, clearCart, getCartTotal, getCartCount } = useCart();
+  const { cart, clearCart, getCartTotal, getCartCount, removeFromCart } = useCart();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("momo");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [promoMessage, setPromoMessage] = useState("");
   const [qrPayment, setQrPayment] = useState(null);
   const [checkingPayment, setCheckingPayment] = useState(false);
   const [bookingIds, setBookingIds] = useState([]);
+  const [savedCartData, setSavedCartData] = useState(null); // Lưu cart data trước khi xóa
+  const [seatErrors, setSeatErrors] = useState([]); // Lưu lỗi ghế đã đặt
 
   useEffect(() => {
     async function fetchUser() {
@@ -35,6 +37,37 @@ export default function CheckoutPage() {
     }
     fetchUser();
   }, []);
+
+  // Kiểm tra ghế đã đặt khi load trang
+  useEffect(() => {
+    async function checkBookedSeats() {
+      if (cart.length === 0) return;
+      
+      const errors = [];
+      for (const item of cart) {
+        if (item.type === 'ticket' && item.showtime?.id && item.seatData?.length > 0) {
+          try {
+            const seatIds = item.seatData.map(s => s.seat_id).join(',');
+            const res = await fetch(`/api/showtimes/${item.showtime.id}/check-seats?seats=${seatIds}`);
+            const data = await res.json();
+            
+            if (data.bookedSeats && data.bookedSeats.length > 0) {
+              errors.push({
+                itemId: item.id,
+                movie: item.movie?.title,
+                bookedSeats: data.bookedSeats,
+              });
+            }
+          } catch (e) {
+            console.error("Error checking seats:", e);
+          }
+        }
+      }
+      setSeatErrors(errors);
+    }
+    
+    checkBookedSeats();
+  }, [cart]);
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
@@ -58,12 +91,13 @@ export default function CheckoutPage() {
 
   const calculateItemTotal = (item) => {
     // Tính tiền vé từ seatData (có giá riêng mỗi ghế từ ticket_prices)
-    const ticketTotal = item.seatData 
-      ? item.seatData.reduce((sum, s) => sum + (s.price || 65000), 0)
-      : item.seats.length * (item.showtime.base_price || 65000);
+    const ticketTotal = item.seatData?.length > 0
+      ? item.seatData.reduce((sum, s) => sum + (Number(s.price) || 0), 0)
+      : (item.seats?.length || 0) * (Number(item.showtime?.base_price) || 65000);
     const concessionTotal = Object.entries(item.concessions || {}).reduce((sum, [id, qty]) => {
+      if (!qty || qty <= 0) return sum;
       const concession = item.concessionItems?.find(c => c.id === Number(id));
-      return sum + (concession ? concession.price * qty : 0);
+      return sum + (concession ? Number(concession.price) * qty : 0);
     }, 0);
     return ticketTotal + concessionTotal;
   };
@@ -93,59 +127,84 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (cart.length === 0) {
+    if (cart.length === 0 && bookingIds.length === 0) {
       return;
     }
 
     setProcessing(true);
 
     try {
-      const createdBookingIds = [];
+      let finalBookingIds = bookingIds;
 
-      // Create bookings for each item in cart
-      for (const item of cart) {
-        // Format seats for API (needs seat_id and price from seatData)
-        const seatsForApi = item.seatData || item.seats.map((label, idx) => ({
-          seat_id: idx + 1, // Fallback if no seatData
-          price: 65000, // Giá mặc định
-        }));
+      // Chỉ tạo booking mới nếu chưa có bookingIds (tránh tạo trùng khi retry)
+      if (bookingIds.length === 0) {
+        const createdBookingIds = [];
 
-        // Format concessions for API (needs concession_id and quantity)
-        const concessionsForApi = Object.entries(item.concessions || {})
-          .filter(([, qty]) => qty > 0)
-          .map(([id, qty]) => ({
-            concession_id: Number(id),
-            quantity: qty,
+        // Create bookings for each item in cart
+        for (const item of cart) {
+          // Validate item has required data
+          if (!item.showtime?.id) {
+            throw new Error("Thiếu thông tin suất chiếu");
+          }
+
+          // Format seats for API - must have seat_id and price from seatData
+          if (!item.seatData || item.seatData.length === 0) {
+            throw new Error("Thiếu thông tin ghế ngồi");
+          }
+          
+          const seatsForApi = item.seatData.map(s => ({
+            seat_id: Number(s.seat_id),
+            price: Number(s.price) || 65000,
           }));
 
-        const bookingData = {
-          showtime_id: item.showtime.id,
-          seats: seatsForApi,
-          concessions: concessionsForApi,
-          payment_method: paymentMethod === "bank" ? "bank_transfer" : paymentMethod,
-        };
+          // Format concessions for API (needs concession_id and quantity)
+          const concessionsForApi = Object.entries(item.concessions || {})
+            .filter(([, qty]) => qty > 0)
+            .map(([id, qty]) => ({
+              concession_id: Number(id),
+              quantity: Number(qty),
+            }));
 
-        const res = await fetch("/api/bookings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bookingData)
-        });
+          const bookingData = {
+            showtime_id: Number(item.showtime.id),
+            seats: seatsForApi,
+            concessions: concessionsForApi,
+            payment_method: paymentMethod === "bank" ? "bank_transfer" : paymentMethod,
+          };
 
-        const data = await res.json();
+          const res = await fetch("/api/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookingData)
+          });
 
-        if (!res.ok) {
-          throw new Error(data.error || "Đặt vé thất bại");
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || "Đặt vé thất bại");
+          }
+
+          createdBookingIds.push(data.booking.id);
         }
 
-        createdBookingIds.push(data.booking.id);
+        finalBookingIds = createdBookingIds;
+        setBookingIds(createdBookingIds);
+        
+        // Lưu cart data trước khi xóa để hiển thị thông tin đơn hàng
+        setSavedCartData({
+          items: [...cart],
+          total: getCartTotal(),
+          count: getCartCount()
+        });
+        
+        // Xóa giỏ hàng ngay sau khi tạo booking thành công
+        clearCart();
       }
-
-      setBookingIds(createdBookingIds);
 
       // Nếu là thanh toán chuyển khoản, tạo QR code
       if (paymentMethod === "bank") {
         // Tạo QR cho booking đầu tiên (hoặc có thể tạo cho tất cả)
-        const firstBookingId = createdBookingIds[0];
+        const firstBookingId = finalBookingIds[0];
         const qrRes = await fetch("/api/payments/create-qr", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -158,11 +217,10 @@ export default function CheckoutPage() {
           // Bắt đầu kiểm tra thanh toán tự động
           startPaymentCheck(qrData.payment.transaction_id);
         } else {
-          throw new Error("Lỗi tạo mã QR thanh toán");
+          throw new Error(qrData.error || "Lỗi tạo mã QR thanh toán");
         }
       } else {
         // Các phương thức khác: redirect đến success
-        clearCart();
         router.push("/checkout/success");
       }
 
@@ -209,7 +267,11 @@ export default function CheckoutPage() {
     }, 15 * 60 * 1000);
   };
 
-  const finalTotal = getCartTotal() - discount;
+  // Sử dụng savedCartData nếu cart đã bị xóa (khi đang hiển thị QR)
+  const displayCart = cart.length > 0 ? cart : (savedCartData?.items || []);
+  const displayTotal = cart.length > 0 ? getCartTotal() : (savedCartData?.total || 0);
+  const displayCount = cart.length > 0 ? getCartCount() : (savedCartData?.count || 0);
+  const finalTotal = displayTotal - discount;
 
   if (loading) {
     return (
@@ -232,7 +294,35 @@ export default function CheckoutPage() {
         <div className="container">
           <h1 className="page-title">THANH TOÁN</h1>
 
-          {cart.length === 0 ? (
+          {/* Cảnh báo ghế đã đặt */}
+          {seatErrors.length > 0 && (
+            <div className="seat-error-alert">
+              <div className="seat-error-alert__icon">⚠️</div>
+              <div className="seat-error-alert__content">
+                <h3>Một số ghế đã được đặt!</h3>
+                {seatErrors.map((err, idx) => (
+                  <p key={idx}>
+                    <strong>{err.movie}</strong>: Ghế {err.bookedSeats.map(s => s.seat_code).join(", ")} đã được người khác đặt.
+                  </p>
+                ))}
+                <p>Vui lòng xóa khỏi giỏ hàng và chọn ghế khác.</p>
+              </div>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => {
+                  // Xóa các item có ghế đã đặt
+                  seatErrors.forEach(err => {
+                    removeFromCart(err.itemId);
+                  });
+                  setSeatErrors([]);
+                }}
+              >
+                Xóa và chọn lại
+              </button>
+            </div>
+          )}
+
+          {displayCart.length === 0 && !qrPayment && bookingIds.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state__icon">🛒</div>
               <h3>Giỏ hàng trống</h3>
@@ -245,9 +335,9 @@ export default function CheckoutPage() {
             <div className="checkout-content">
               {/* Order Summary */}
               <div className="checkout-orders">
-                <h2>Chi tiết đơn hàng ({getCartCount()} vé)</h2>
+                <h2>Chi tiết đơn hàng ({displayCount} vé)</h2>
                 
-                {cart.map(item => (
+                {displayCart.map(item => (
                   <div key={item.id} className="checkout-order-item">
                     <div className="checkout-order-item__header">
                       <div className="checkout-order-item__poster">
@@ -371,39 +461,6 @@ export default function CheckoutPage() {
                 <div className="checkout-method">
                   <h3>Phương thức thanh toán</h3>
                   <div className="payment-methods">
-                    <label className={`payment-option ${paymentMethod === "momo" ? "selected" : ""}`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="momo"
-                        checked={paymentMethod === "momo"}
-                        onChange={e => setPaymentMethod(e.target.value)}
-                      />
-                      <span className="payment-option__icon">💳</span>
-                      <span className="payment-option__name">Ví MoMo</span>
-                    </label>
-                    <label className={`payment-option ${paymentMethod === "vnpay" ? "selected" : ""}`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="vnpay"
-                        checked={paymentMethod === "vnpay"}
-                        onChange={e => setPaymentMethod(e.target.value)}
-                      />
-                      <span className="payment-option__icon">🏦</span>
-                      <span className="payment-option__name">VNPay</span>
-                    </label>
-                    <label className={`payment-option ${paymentMethod === "bank" ? "selected" : ""}`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="bank"
-                        checked={paymentMethod === "bank"}
-                        onChange={e => setPaymentMethod(e.target.value)}
-                      />
-                      <span className="payment-option__icon">🏦</span>
-                      <span className="payment-option__name">Chuyển khoản QR</span>
-                    </label>
                     <label className={`payment-option ${paymentMethod === "cash" ? "selected" : ""}`}>
                       <input
                         type="radio"
@@ -415,6 +472,17 @@ export default function CheckoutPage() {
                       <span className="payment-option__icon">💵</span>
                       <span className="payment-option__name">Tiền mặt tại rạp</span>
                     </label>
+                    <label className={`payment-option ${paymentMethod === "bank" ? "selected" : ""}`}>
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="bank"
+                        checked={paymentMethod === "bank"}
+                        onChange={e => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="payment-option__icon">📱</span>
+                      <span className="payment-option__name">Chuyển khoản QR</span>
+                    </label>
                   </div>
                 </div>
 
@@ -422,7 +490,7 @@ export default function CheckoutPage() {
                 <div className="checkout-summary">
                   <div className="checkout-summary__row">
                     <span>Tạm tính:</span>
-                    <span>{formatPrice(getCartTotal())}</span>
+                    <span>{formatPrice(displayTotal)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="checkout-summary__row checkout-summary__discount">
@@ -440,33 +508,71 @@ export default function CheckoutPage() {
                   <button
                     className="btn btn-primary checkout-btn"
                     onClick={handleCheckout}
-                    disabled={processing || !user || cart.length === 0}
+                    disabled={processing || !user || displayCart.length === 0}
                   >
                     {processing ? "Đang xử lý..." : `Thanh toán ${formatPrice(finalTotal)}`}
                   </button>
                 ) : (
                   <div className="qr-payment-section">
-                    <h3>Quét mã QR để thanh toán</h3>
-                    <div className="qr-code-container">
-                      <img src={qrPayment.qr_code} alt="QR Code" className="qr-code-image" />
-                      <div className="qr-payment-info">
-                        <p><strong>Số tài khoản:</strong> {qrPayment.bank_account}</p>
-                        <p><strong>Ngân hàng:</strong> {qrPayment.bank_name}</p>
-                        <p><strong>Chủ tài khoản:</strong> {qrPayment.account_name}</p>
-                        <p><strong>Số tiền:</strong> {formatPrice(qrPayment.amount)}</p>
-                        <p><strong>Nội dung:</strong> LMK-{qrPayment.booking_code}</p>
-                        <p className="qr-expires">
-                          ⏰ Mã QR hết hạn sau: {new Date(qrPayment.expires_at).toLocaleTimeString("vi-VN")}
-                        </p>
+                    <div className="qr-payment-header">
+                      <div className="qr-payment-icon">📱</div>
+                      <h3>Quét mã QR để thanh toán</h3>
+                      <p className="qr-payment-subtitle">Sử dụng ứng dụng ngân hàng để quét mã</p>
+                    </div>
+                    
+                    <div className="qr-code-wrapper">
+                      <div className="qr-code-box">
+                        <img src={qrPayment.qr_code} alt="QR Code thanh toán" className="qr-code-image" />
+                      </div>
+                      
+                      <div className="qr-payment-amount">
+                        <span>Số tiền cần chuyển</span>
+                        <strong>{formatPrice(qrPayment.amount)}</strong>
                       </div>
                     </div>
+
+                    <div className="qr-payment-details">
+                      <div className="qr-detail-item">
+                        <span className="qr-detail-label">🏦 Ngân hàng</span>
+                        <span className="qr-detail-value">{qrPayment.bank_name}</span>
+                      </div>
+                      <div className="qr-detail-item">
+                        <span className="qr-detail-label">💳 Số tài khoản</span>
+                        <span className="qr-detail-value">{qrPayment.bank_account}</span>
+                      </div>
+                      <div className="qr-detail-item">
+                        <span className="qr-detail-label">👤 Chủ tài khoản</span>
+                        <span className="qr-detail-value">{qrPayment.account_name}</span>
+                      </div>
+                      <div className="qr-detail-item">
+                        <span className="qr-detail-label">📝 Nội dung CK</span>
+                        <span className="qr-detail-value qr-detail-code">LMK-{qrPayment.booking_code}</span>
+                      </div>
+                      <div className="qr-detail-item qr-detail-warning">
+                        <span className="qr-detail-label">⏰ Hết hạn lúc</span>
+                        <span className="qr-detail-value">{new Date(qrPayment.expires_at).toLocaleTimeString("vi-VN")}</span>
+                      </div>
+                    </div>
+
+                    <div className="qr-payment-actions">
+                      <button
+                        className="btn btn-primary btn-confirm-payment"
+                        onClick={() => {
+                          clearCart();
+                          router.push("/checkout/success?pending=true&code=" + qrPayment.booking_code);
+                        }}
+                      >
+                        ✅ Tôi đã chuyển khoản
+                      </button>
+                      <p className="qr-payment-note">
+                        Sau khi bấm xác nhận, nhân viên sẽ kiểm tra và cập nhật trạng thái đơn hàng của bạn.
+                      </p>
+                    </div>
+
                     {checkingPayment && (
                       <div className="payment-checking">
                         <div className="spinner"></div>
-                        <p>Đang kiểm tra thanh toán tự động...</p>
-                        <p className="payment-check-note">
-                          Hệ thống sẽ tự động xác nhận khi nhận được tiền
-                        </p>
+                        <p>Đang kiểm tra thanh toán...</p>
                       </div>
                     )}
                   </div>

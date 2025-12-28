@@ -12,21 +12,33 @@ import "swiper/css/pagination";
 const STATIC_BANNERS = [
   { 
     id: 1, 
-    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/9/8/980x448_u22_1_.jpg", 
-    name: "Khuyến mãi U22",
+    media: "https://api-website.cinestar.com.vn/media/.renditions/wysiwyg/CMSPage/Member/Rectangle_1899.png", 
+    name: "Khuyến Mãi",
     link: "/chuong-trinh-khuyen-mai"
   },
   { 
     id: 2, 
-    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/c/o/combo_2nguoi_980x448.jpg", 
+    media: "https://gscvietnam.com/wp-content/uploads/2023/10/Mat-tua-lung-cua-ghe-con-in-logo-CineStar-sang-trong.jpg", 
     name: "Combo Bắp Nước",
-    link: "/popcorn-drink"
+    link: "/movie"
   },
   { 
     id: 3, 
-    media: "https://www.cgv.vn/media/banner/cache/1/b58515f018eb873dafa430b6f9ae0c1e/h/o/home_-_main_banner_-_980wx448h_28_.jpg", 
+    media: "https://lh3.googleusercontent.com/JB0BUJaaKjfAIXhnIMScZVudCo8_CFLk_phIeiTvywATFpVY9x2zH17cZHbXDNmAzy-UR1cmCWsi8XihDo8FXEWRp0ofOysr8A=rw-v1-w2048", 
     name: "Phim Hot",
     link: "/movie"
+  },
+  { 
+    id: 4, 
+    media: "https://evgroup.vn/wp-content/uploads/2021/01/EV_Cinestar-Sinh-Vi%C3%AAn.png", 
+    name: "Khuyến Mãi",
+    link: "/chuong-trinh-khuyen-mai"
+  },
+  { 
+    id: 5, 
+    media: "https://evgroup.vn/wp-content/uploads/2021/01/EV_Cinestar-Hu%E1%BA%BF_1.png", 
+    name: "Khuyến Mãi",
+    link: "/chuong-trinh-khuyen-mai"
   },
 ];
 

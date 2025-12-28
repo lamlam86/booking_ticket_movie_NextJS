@@ -24,3 +24,4 @@ export default function MovieCard({ id, title, img, age }) {
 
 
 
+

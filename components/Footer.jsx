@@ -33,26 +33,11 @@ export default function Footer() {
               <p className="footer-slogan">BE HAPPY, BE A STAR ✨</p>
               <div className="footer-cta-btns">
                 <Link href="/movie" className="footer-cta-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-                    <line x1="7" y1="2" x2="7" y2="22"></line>
-                    <line x1="17" y1="2" x2="17" y2="22"></line>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                    <line x1="2" y1="7" x2="7" y2="7"></line>
-                    <line x1="2" y1="17" x2="7" y2="17"></line>
-                    <line x1="17" y1="17" x2="22" y2="17"></line>
-                    <line x1="17" y1="7" x2="22" y2="7"></line>
-                  </svg>
+                  <span className="footer-cta-btn__icon">🎬</span>
                   <span>ĐẶT VÉ</span>
                 </Link>
                 <Link href="/popcorn-drink" className="footer-cta-btn footer-cta-btn--outline">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                    <line x1="6" y1="1" x2="6" y2="4"></line>
-                    <line x1="10" y1="1" x2="10" y2="4"></line>
-                    <line x1="14" y1="1" x2="14" y2="4"></line>
-                  </svg>
+                  <span className="footer-cta-btn__icon">🍿</span>
                   <span>BẮP NƯỚC</span>
                 </Link>
               </div>
@@ -152,7 +137,7 @@ export default function Footer() {
           <div className="footer-legal">
             <p>CÔNG TY TNHH LMK CINEMA VIỆT NAM</p>
             <p>Trụ sở: 84 Man Thiện, Phường Hiệp Phú, TP. Thủ Đức, TP.HCM</p>
-            <p>Zalo: <strong>0948 116 717</strong> | Email: <strong>cskh@lmkcinema.vn</strong></p>
+            <p>Hotline: <strong>1900 00000</strong> | Email: <strong>cskh@lmkcinema.vn</strong></p>
           </div>
         </div>
       </div>

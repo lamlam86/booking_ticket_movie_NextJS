@@ -11,6 +11,13 @@ export default function AdminTicketPricesPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editPrice, setEditPrice] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newPrice, setNewPrice] = useState({
+    screen_type: "standard",
+    seat_type: "standard",
+    price: 65000,
+  });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     fetchPrices();
@@ -30,37 +37,49 @@ export default function AdminTicketPricesPage() {
   }
 
   async function handleUpdatePrice(id) {
-    await fetch("/api/admin/ticket-prices", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, price: parseInt(editPrice) }),
-    });
-    setEditingId(null);
-    fetchPrices();
+    try {
+      await fetch("/api/admin/ticket-prices", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, price: parseInt(editPrice) }),
+      });
+      setEditingId(null);
+      fetchPrices();
+    } catch {}
   }
 
   async function handleToggleActive(id, currentActive) {
-    await fetch("/api/admin/ticket-prices", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, is_active: !currentActive }),
-    });
-    fetchPrices();
+    try {
+      await fetch("/api/admin/ticket-prices", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, is_active: !currentActive }),
+      });
+      fetchPrices();
+    } catch {}
   }
 
-  // ✅ CHỈ LẤY 1 GHẾ THƯỜNG + 1 GHẾ VIP (ưu tiên đang active)
-  const uniquePrices = Object.values(
-    prices.reduce((acc, p) => {
-      if (!acc[p.seatType] || p.isActive) {
-        acc[p.seatType] = p;
-      }
-      return acc;
-    }, {})
-  );
+  async function handleAddPrice(e) {
+    e.preventDefault();
+    try {
+      await fetch("/api/admin/ticket-prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPrice),
+      });
+      setShowAddModal(false);
+      fetchPrices();
+    } catch {}
+  }
 
   return (
     <div className="admin-stack">
-      <h2>Bảng giá vé</h2>
+      <div className="page-heading">
+        <h2>Bảng giá vé</h2>
+        <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+          + Thêm giá vé
+        </button>
+      </div>
 
       {loading ? (
         <div>Đang tải...</div>
@@ -75,14 +94,10 @@ export default function AdminTicketPricesPage() {
                 <th>Thao tác</th>
               </tr>
             </thead>
-
             <tbody>
-              {uniquePrices.map((price) => (
+              {prices.map((price) => (
                 <tr key={price.id}>
-                  <td>
-                    <strong>{SEAT_TYPES[price.seatType]}</strong>
-                  </td>
-
+                  <td>{SEAT_TYPES[price.seatType]}</td>
                   <td>
                     {editingId === price.id ? (
                       <input
@@ -94,22 +109,14 @@ export default function AdminTicketPricesPage() {
                       <strong>{price.price.toLocaleString()}đ</strong>
                     )}
                   </td>
-
                   <td>
-                    <button
-                      onClick={() =>
-                        handleToggleActive(price.id, price.isActive)
-                      }
-                    >
+                    <button onClick={() => handleToggleActive(price.id, price.isActive)}>
                       {price.isActive ? "Đang áp dụng" : "Tạm dừng"}
                     </button>
                   </td>
-
                   <td>
                     {editingId === price.id ? (
-                      <button onClick={() => handleUpdatePrice(price.id)}>
-                        Lưu
-                      </button>
+                      <button onClick={() => handleUpdatePrice(price.id)}>Lưu</button>
                     ) : (
                       <button
                         onClick={() => {
@@ -125,6 +132,35 @@ export default function AdminTicketPricesPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showAddModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+            <form onSubmit={handleAddPrice}>
+              <select
+                value={newPrice.seat_type}
+                onChange={(e) =>
+                  setNewPrice({ ...newPrice, seat_type: e.target.value })
+                }
+              >
+                {Object.entries(SEAT_TYPES).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="number"
+                value={newPrice.price}
+                onChange={(e) =>
+                  setNewPrice({ ...newPrice, price: parseInt(e.target.value) })
+                }
+              />
+              <button type="submit">Thêm</button>
+            </form>
+          </div>
         </div>
       )}
     </div>

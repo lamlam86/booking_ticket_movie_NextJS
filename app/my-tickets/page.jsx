@@ -55,18 +55,38 @@ export default function MyTicketsPage() {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
-  // Generate QR code URL - points to ticket page
+  // Generate QR code URL - chứa JSON thông tin vé để quét hiển thị trực tiếp
   const getQRCodeUrl = (booking) => {
-    // QR code links to ticket page for scanning
-    const ticketUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${booking.booking_code}`;
-    const qrData = encodeURIComponent(ticketUrl);
+    // QR code chứa JSON thông tin vé đầy đủ
+    const ticketInfo = {
+      code: booking.booking_code,
+      movie: booking.movie,
+      branch: booking.branch,
+      screen: booking.screen,
+      time: formatTime(booking.showtime),
+      date: formatDate(booking.showtime),
+      seats: booking.seats.join(", "),
+      total: formatPrice(booking.total_amount),
+      status: booking.payment_status === "paid" ? "DA THANH TOAN" : "CHO THANH TOAN"
+    };
+    const qrData = encodeURIComponent(JSON.stringify(ticketInfo));
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`;
   };
 
   // Generate larger QR for modal
   const getLargeQRCodeUrl = (booking) => {
-    const ticketUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${booking.booking_code}`;
-    const qrData = encodeURIComponent(ticketUrl);
+    const ticketInfo = {
+      code: booking.booking_code,
+      movie: booking.movie,
+      branch: booking.branch,
+      screen: booking.screen,
+      time: formatTime(booking.showtime),
+      date: formatDate(booking.showtime),
+      seats: booking.seats.join(", "),
+      total: formatPrice(booking.total_amount),
+      status: booking.payment_status === "paid" ? "DA THANH TOAN" : "CHO THANH TOAN"
+    };
+    const qrData = encodeURIComponent(JSON.stringify(ticketInfo));
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
   };
 
@@ -208,7 +228,7 @@ export default function MyTicketsPage() {
                     <div className="ticket-card__qr ticket-card__qr--pending">
                       <div className="ticket-qr-pending">
                         <span>⏳</span>
-                        <span>Chờ thanh toán</span>
+                        <span>CHƯA CÓ QR</span>
                       </div>
                     </div>
                   )}
