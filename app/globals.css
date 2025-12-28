@@ -8766,6 +8766,26 @@ select.admin-input {
   color: var(--text-primary);
 }
 
+.detail-row--seats {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seat-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.seat-price-item {
+  background: var(--glass);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .checkout-order-item__concessions {
   margin-top: 16px;
   padding-top: 16px;
