@@ -2003,6 +2003,119 @@ button {
   color: var(--text-soft);
 }
 
+/* Signup Success Modal */
+.signup-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.signup-success-modal {
+  background: linear-gradient(145deg, #1e0a3c, #2d1654);
+  border-radius: var(--radius-lg);
+  max-width: 450px;
+  width: 100%;
+  padding: 40px 32px;
+  text-align: center;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 25px 80px rgba(139, 92, 246, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+.signup-success-icon {
+  margin-bottom: 20px;
+}
+
+.signup-success-title {
+  font-size: 1.75rem;
+  color: #22c55e;
+  margin: 0 0 8px;
+}
+
+.signup-success-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.signup-success-info {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.signup-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.signup-info-row:last-child {
+  border-bottom: none;
+}
+
+.signup-info-label {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.signup-info-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.signup-success-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.signup-success-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signup-success-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+}
+
+.signup-success-countdown {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.signup-success-countdown strong {
+  color: var(--primary-light);
+  font-size: 1.1rem;
+}
+
 .password-wrapper {
   position: relative;
 }
