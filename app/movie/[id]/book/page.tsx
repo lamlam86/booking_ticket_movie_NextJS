@@ -1,14 +1,14 @@
 import BookingWizard from "@/components/BookingWizard";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
 export const metadata = {
     title: "Đặt vé | Cinemas",
     description: "Chọn ngày, rạp và giờ chiếu.",
 };
 
-export default function BookPage({ params }: Props) {
-    const { id } = params;
+export default async function BookPage({ params }: Props) {
+    const { id } = await params;
 
     // Mock movie info (UI sườn). Sau này thay dữ liệu thật.
     const movie = {

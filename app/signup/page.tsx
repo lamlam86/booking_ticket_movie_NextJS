@@ -15,12 +15,9 @@ export default function SignupPage() {
                 iti = intlTelInput(phoneRef.current, {
                     initialCountry: "vn",
                     separateDialCode: true,
-                    preferredCountries: ["vn", "us", "gb", "au", "de", "fr", "jp", "kr"],
                     nationalMode: false,
-                    // utils cần URL, dùng CDN cho nhanh. Nếu muốn offline: copy utils.js vào /public và đổi URL.
-                    utilsScript:
-                        "https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js",
-                });
+                    loadUtilsOnInit: "https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/js/utils.js",
+                } as any);
             }
         })();
         return () => { /* unmount cleanup nếu cần */ };
