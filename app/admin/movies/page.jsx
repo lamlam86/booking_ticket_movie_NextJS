@@ -303,14 +303,7 @@ export default function AdminMoviesPage() {
                     <td>{movie.totalShows}</td>
                     <td>{movie.soldTickets?.toLocaleString() || 0}</td>
                     <td>
-                      <div className="admin-actions">
-                        <button
-                          className={`admin-chip ${movie.isFeatured ? 'admin-chip--active' : ''}`}
-                          onClick={() => handleFeatureToggle(movie.id, !movie.isFeatured)}
-                          title={movie.isFeatured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
-                        >
-                          ⭐
-                        </button>
+                      <div className="admin-actions" style={{flexDirection: 'row', gap: '8px'}}>
                         <button className="admin-action-btn" onClick={() => openEditModal(movie)} title="Sửa">
                           ✏️
                         </button>
