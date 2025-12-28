@@ -17,7 +17,6 @@ const EMPTY_FORM = {
   releaseDate: '',
   duration: 120,
   rating: 'P',
-  isFeatured: false,
 };
 
 const STATUS_LABELS = {
@@ -100,7 +99,6 @@ export default function AdminMoviesPage() {
       releaseDate: movie.releaseDate || '',
       duration: movie.duration || 120,
       rating: movie.rating || 'P',
-      isFeatured: movie.isFeatured || false,
     });
     setShowModal(true);
   };
@@ -145,7 +143,6 @@ export default function AdminMoviesPage() {
           releaseDate: form.releaseDate || null,
           duration: form.duration,
           rating: form.rating,
-          isFeatured: form.isFeatured,
         }),
       });
 
@@ -175,20 +172,6 @@ export default function AdminMoviesPage() {
       fetchMovies();
     } catch (error) {
       resetFlash({ type: 'error', message: 'Không thể cập nhật trạng thái.' });
-    }
-  };
-
-  const handleFeatureToggle = async (movieId, next) => {
-    try {
-      const res = await fetch(`/api/movies/${movieId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isFeatured: next }),
-      });
-      if (!res.ok) throw new Error();
-      fetchMovies();
-    } catch (error) {
-      resetFlash({ type: 'error', message: 'Không thể cập nhật.' });
     }
   };
 
