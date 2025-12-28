@@ -53,9 +53,14 @@ export default function AdminShowtimesPage() {
       if (filters.movie_id) params.append("movie_id", filters.movie_id);
       if (filters.branch_id) params.append("branch_id", filters.branch_id);
       if (filters.date) params.append("date", filters.date);
+      params.append("_t", Date.now()); // Cache bust
       
-      const res = await fetch(`/api/admin/showtimes?${params}`, { cache: 'no-store' });
+      const res = await fetch(`/api/admin/showtimes?${params}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
+      console.log("Fetched showtimes:", data.data?.length);
       setShowtimes(data.data || []);
     } catch (err) {
       console.error(err);
@@ -119,11 +124,16 @@ export default function AdminShowtimesPage() {
     if (!confirm(`Bạn có chắc muốn xóa suất chiếu ${showtime.movie.title} lúc ${new Date(showtime.start_time).toLocaleTimeString("vi-VN")}?`)) return;
     
     try {
-      const res = await fetch(`/api/admin/showtimes/${showtime.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/showtimes/${showtime.id}`, { 
+        method: "DELETE",
+        cache: 'no-store'
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      
+      // Remove from local state immediately
+      setShowtimes(prev => prev.filter(s => s.id !== showtime.id));
       alert("Đã xóa suất chiếu thành công!");
-      await fetchShowtimes();
     } catch (err) {
       alert(err.message);
     }
