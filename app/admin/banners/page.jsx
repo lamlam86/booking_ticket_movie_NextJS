@@ -26,9 +26,15 @@ export default function AdminBannersPage() {
     try {
       const res = await fetch(`/api/admin/banners?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
+      
+      if (data.message) {
+        setMessage({ type: "warning", text: data.message });
+      }
+      
       setBanners(data.data || []);
     } catch (err) {
       console.error(err);
+      setMessage({ type: "error", text: "Lỗi tải dữ liệu. Vui lòng chạy: npx prisma db push" });
     } finally {
       setLoading(false);
     }
