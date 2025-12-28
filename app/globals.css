@@ -6754,6 +6754,306 @@ button {
   }
 }
 
+/* Pending QR state */
+.ticket-card__qr--pending {
+  background: var(--glass);
+  cursor: default;
+}
+
+.ticket-card__qr--pending:hover {
+  transform: none;
+}
+
+.ticket-qr-pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.ticket-qr-pending span:first-child {
+  font-size: 2rem;
+}
+
+/* QR Modal Link */
+.qr-modal__link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: var(--glass);
+  color: var(--primary-light);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.qr-modal__link:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ============================================= */
+/* TICKET DISPLAY PAGE (QR Scan Result)         */
+/* ============================================= */
+.ticket-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a0a2e 0%, #16082a 50%, #0d0618 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ticket-page__loading,
+.ticket-page__error {
+  text-align: center;
+  color: white;
+}
+
+.ticket-page__loading .loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--glass);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.ticket-page__error .error-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.ticket-page__error h2 {
+  margin: 0 0 10px;
+}
+
+.ticket-page__error .btn-back {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+/* Ticket Display Card */
+.ticket-display {
+  background: linear-gradient(145deg, #1e0a3c, #2d1654);
+  border-radius: 24px;
+  max-width: 420px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.ticket-display__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: rgba(0,0,0,0.2);
+}
+
+.ticket-display__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.ticket-display__logo span {
+  font-size: 1.5rem;
+}
+
+.ticket-display__logo strong {
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.ticket-display__status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ticket-display__status--valid {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ticket-display__status--invalid {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.ticket-display__movie {
+  padding: 24px;
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+}
+
+.ticket-display__poster {
+  width: 100px;
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ticket-display__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ticket-display__movie-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ticket-display__title {
+  font-size: 1.25rem;
+  color: white;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.ticket-display__rating {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.ticket-display__details {
+  padding: 20px 24px;
+}
+
+.ticket-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.ticket-detail-row:last-child {
+  border-bottom: none;
+}
+
+.ticket-detail-row--highlight {
+  background: rgba(139, 92, 246, 0.1);
+  margin: 0 -24px;
+  padding: 16px 24px;
+  border-radius: 12px;
+}
+
+.ticket-detail-icon {
+  font-size: 1.25rem;
+  width: 36px;
+  text-align: center;
+}
+
+.ticket-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticket-detail-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ticket-detail-content strong {
+  font-size: 1rem;
+  color: white;
+}
+
+.ticket-seats {
+  font-size: 1.25rem !important;
+  color: var(--primary-light) !important;
+  letter-spacing: 2px;
+}
+
+.ticket-display__code-section {
+  text-align: center;
+  padding: 24px;
+  background: rgba(0,0,0,0.2);
+  border-top: 1px dashed rgba(255,255,255,0.1);
+}
+
+.ticket-code-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.ticket-code-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  letter-spacing: 4px;
+  font-family: monospace;
+}
+
+.ticket-display__price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--primary);
+}
+
+.ticket-display__price span {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.9rem;
+}
+
+.ticket-display__price strong {
+  color: white;
+  font-size: 1.25rem;
+}
+
+.ticket-display__footer {
+  padding: 20px 24px;
+  text-align: center;
+  background: rgba(0,0,0,0.1);
+}
+
+.ticket-display__footer p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.ticket-display__footer .ticket-customer {
+  margin-top: 8px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 500;
+}
+
 .ticket-card__total {
   font-size: 1.1rem;
   font-weight: 700;
