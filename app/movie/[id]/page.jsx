@@ -22,12 +22,12 @@ function getWeekday(dateStr) {
   return weekdays[date.getDay()];
 }
 
-// Ticket types
-const TICKET_TYPES = [
+// Default ticket types (fallback if API fails)
+const DEFAULT_TICKET_TYPES = [
   { id: "adult", name: "NGƯỜI LỚN", type: "ĐƠN", priceMultiplier: 1 },
   { id: "student", name: "HSSV-U22-GV", type: "ĐƠN", priceMultiplier: 0.9 },
   { id: "senior", name: "NGƯỜI CAO TUỔI", type: "ĐƠN", priceMultiplier: 0.8 },
-  { id: "couple", name: "NGƯỜI LỚN", type: "ĐÔI", priceMultiplier: 1.8 },
+  { id: "couple", name: "GHẾ ĐÔI - NGƯỜI LỚN", type: "ĐÔI", priceMultiplier: 1.8 },
 ];
 
 export default function MovieDetailPage() {
@@ -55,6 +55,7 @@ export default function MovieDetailPage() {
   const [screenInfo, setScreenInfo] = useState(null);
   const [basePrice, setBasePrice] = useState(45000);
   const [concessionList, setConcessionList] = useState({ combos: [], drinks: [] });
+  const [ticketTypes, setTicketTypes] = useState(DEFAULT_TICKET_TYPES);
   const [bookingLoading, setBookingLoading] = useState(false);
 
   // Check if user is logged in
@@ -119,6 +120,23 @@ export default function MovieDetailPage() {
     fetchConcessions();
   }, []);
 
+  // Fetch ticket prices
+  useEffect(() => {
+    async function fetchTicketPrices() {
+      try {
+        const res = await fetch("/api/ticket-prices");
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          setTicketTypes(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching ticket prices:", err);
+        // Keep default ticket types
+      }
+    }
+    fetchTicketPrices();
+  }, []);
+
   // Fetch seats when showtime is selected
   const fetchSeats = useCallback(async (showtimeId) => {
     try {
@@ -144,17 +162,17 @@ export default function MovieDetailPage() {
   // Calculate total tickets count
   const totalTickets = useMemo(() => {
     return Object.entries(tickets).reduce((sum, [id, qty]) => {
-      const ticket = TICKET_TYPES.find(t => t.id === id);
+      const ticket = ticketTypes.find(t => t.id === id);
       if (ticket?.type === "ĐÔI") return sum + qty * 2;
       return sum + qty;
     }, 0);
-  }, [tickets]);
+  }, [tickets, ticketTypes]);
 
   // Calculate totals
   const totals = useMemo(() => {
     let ticketTotal = 0;
     Object.entries(tickets).forEach(([id, qty]) => {
-      const ticket = TICKET_TYPES.find(t => t.id === id);
+      const ticket = ticketTypes.find(t => t.id === id);
       if (ticket) {
         ticketTotal += Math.round(basePrice * ticket.priceMultiplier) * qty;
       }
@@ -172,7 +190,7 @@ export default function MovieDetailPage() {
       concessions: concessionTotal,
       total: ticketTotal + concessionTotal,
     };
-  }, [tickets, concessions, basePrice, concessionList]);
+  }, [tickets, concessions, basePrice, concessionList, ticketTypes]);
 
   const handleTicketChange = (id, delta) => {
     setTickets(prev => {
@@ -578,7 +596,7 @@ export default function MovieDetailPage() {
               <section className="booking-section">
                 <h2 className="booking-section-title">CHỌN LOẠI VÉ</h2>
                 <div className="ticket-types-grid">
-                  {TICKET_TYPES.map((ticket) => (
+                  {ticketTypes.map((ticket) => (
                     <div key={ticket.id} className="ticket-type-card">
                       <div className="ticket-type-info">
                         <h3 className="ticket-type-name">{ticket.name}</h3>

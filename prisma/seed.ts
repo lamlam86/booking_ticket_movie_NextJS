@@ -551,6 +551,28 @@ async function main() {
   }
   console.log(`✅ Showtimes seeded (${showtimesData.length} suất chiếu)`);
 
+  // Seed ticket prices (bảng giá vé)
+  const ticketPrices = [
+    { name: "NGƯỜI LỚN", code: "adult", description: "Vé người lớn tiêu chuẩn", ticket_type: "single" as const, price_multiplier: 1.0, display_order: 1 },
+    { name: "HSSV-U22-GV", code: "student", description: "Học sinh, sinh viên, người dưới 22 tuổi, giáo viên (có thẻ)", ticket_type: "single" as const, price_multiplier: 0.9, display_order: 2 },
+    { name: "NGƯỜI CAO TUỔI", code: "senior", description: "Người từ 60 tuổi trở lên", ticket_type: "single" as const, price_multiplier: 0.8, display_order: 3 },
+    { name: "TRẺ EM", code: "child", description: "Trẻ em từ 4-12 tuổi", ticket_type: "single" as const, price_multiplier: 0.75, display_order: 4 },
+    { name: "GHẾ ĐÔI - NGƯỜI LỚN", code: "couple", description: "Ghế đôi cho 2 người lớn", ticket_type: "couple" as const, price_multiplier: 1.8, display_order: 5 },
+  ];
+
+  // Check if ticket_prices table exists before seeding
+  try {
+    // Clear existing ticket prices
+    await prisma.ticket_prices.deleteMany({});
+    
+    for (const tp of ticketPrices) {
+      await prisma.ticket_prices.create({ data: tp });
+    }
+    console.log("✅ Ticket prices seeded");
+  } catch (error) {
+    console.log("⚠️ Ticket prices table not found, skipping...");
+  }
+
   console.log("🎉 Database seeded successfully!");
 }
 

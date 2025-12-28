@@ -232,6 +232,19 @@ model audit_logs {
   user       users?   @relation(fields: [user_id], references: [id], onDelete: SetNull)
 }
 
+model ticket_prices {
+  id              Int      @id @default(autoincrement())
+  name            String
+  code            String   @unique
+  description     String?
+  ticket_type     TicketType @default(single)
+  price_multiplier Decimal  @default(1)
+  is_active       Boolean  @default(true)
+  display_order   Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
 enum Status {
   active
   blocked
@@ -312,4 +325,9 @@ enum PromotionStatus {
   active
   expired
   disabled
+}
+
+enum TicketType {
+  single
+  couple
 }
