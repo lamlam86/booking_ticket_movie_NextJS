@@ -49,7 +49,7 @@ export default function MovieDetailPage() {
   const [screenInfo, setScreenInfo] = useState(null);
   const [basePrice, setBasePrice] = useState(65000);
   const [priceMap, setPriceMap] = useState({});
-  const [concessionList, setConcessionList] = useState({ combos: [], drinks: [] });
+  const [concessionList, setConcessionList] = useState({ combos: [], drinks: [], popcorn: [] });
   const [bookingLoading, setBookingLoading] = useState(false);
 
   // Check if user is logged in
@@ -252,7 +252,7 @@ export default function MovieDetailPage() {
         seat_type: s.seat_type,
       })),
       concessions: concessions,
-      concessionItems: [...concessionList.combos, ...concessionList.drinks],
+      concessionItems: [...concessionList.combos, ...concessionList.popcorn, ...concessionList.drinks],
     };
 
     addToCart(cartItem);
@@ -296,7 +296,7 @@ export default function MovieDetailPage() {
         seat_type: s.seat_type,
       })),
       concessions: concessions,
-      concessionItems: [...concessionList.combos, ...concessionList.drinks],
+      concessionItems: [...concessionList.combos, ...concessionList.popcorn, ...concessionList.drinks],
     };
 
     addToCart(cartItem);
@@ -634,7 +634,50 @@ export default function MovieDetailPage() {
                       {concessionList.combos.map((item) => (
                         <div key={item.id} className="concession-card">
                           <div className="concession-image">
-                            <div className="concession-placeholder">🍿</div>
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} />
+                            ) : (
+                              <div className="concession-placeholder">🍿</div>
+                            )}
+                          </div>
+                          <div className="concession-info">
+                            <h4 className="concession-name">{item.name}</h4>
+                            <p className="concession-desc">{item.description}</p>
+                            <p className="concession-price">{formatPrice(item.price)}</p>
+                          </div>
+                          <div className="concession-qty">
+                            <button 
+                              className="qty-btn qty-btn--small"
+                              onClick={() => handleConcessionChange(item.id, -1)}
+                            >
+                              −
+                            </button>
+                            <span className="qty-value">{concessions[item.id] || 0}</span>
+                            <button 
+                              className="qty-btn qty-btn--small"
+                              onClick={() => handleConcessionChange(item.id, 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {concessionList.popcorn?.length > 0 && (
+                  <div className="concession-category">
+                    <h3 className="concession-category-title">BẮP RANG</h3>
+                    <div className="concession-grid">
+                      {concessionList.popcorn.map((item) => (
+                        <div key={item.id} className="concession-card">
+                          <div className="concession-image">
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} />
+                            ) : (
+                              <div className="concession-placeholder">🍿</div>
+                            )}
                           </div>
                           <div className="concession-info">
                             <h4 className="concession-name">{item.name}</h4>
@@ -669,7 +712,11 @@ export default function MovieDetailPage() {
                       {concessionList.drinks.map((item) => (
                         <div key={item.id} className="concession-card concession-card--drink">
                           <div className="concession-image">
-                            <div className="concession-placeholder">🥤</div>
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} />
+                            ) : (
+                              <div className="concession-placeholder">🥤</div>
+                            )}
                           </div>
                           <div className="concession-info">
                             <h4 className="concession-name">{item.name}</h4>
